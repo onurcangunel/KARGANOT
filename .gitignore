@@ -1,0 +1,59 @@
+# KARGA NOT
+
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Testing
+coverage/
+*.log
+
+# Next.js
+.next/
+out/
+build/
+dist/
+
+# Environment
+.env
+.env.local
+.env.production
+.env.development
+
+# Logs
+logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# OS
+.DS_Store
+*.pem
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Misc
+.cache/
+.temp/
+.tmp/
+
+# Uploads
+uploads/
+*.pdf
+*.docx
+
+# Prisma
+apps/api/prisma/migrations/*
+!apps/api/prisma/migrations/.gitkeep
+
+# Build
+*.tsbuildinfo

@@ -1,0 +1,203 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║                                                                            ║
+║                   🎓 KARGA NOT - KURULUM TALİMATLARI 🎓                   ║
+║                                                                            ║
+║              Türkiye Not Paylaşım Platformu - Full Stack Proje            ║
+║                                                                            ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+📍 PROJE KONUMU: /Users/onurcangunel/Desktop/KARGANOT
+
+════════════════════════════════════════════════════════════════════════════
+
+⚡ HIZLI BAŞLATMA (3 ADIMDA)
+════════════════════════════════════════════════════════════════════════════
+
+Terminali açın ve şu komutları sırayla çalıştırın:
+
+1️⃣  cd /Users/onurcangunel/Desktop/KARGANOT
+
+2️⃣  chmod +x scripts/install.sh START.sh scripts/dev.sh
+
+3️⃣  ./START.sh
+
+Bu kadar! Script otomatik olarak:
+  ✅ Tüm dependencies'leri yükler
+  ✅ Docker servislerini başlatır
+  ✅ Database'i oluşturur
+  ✅ Test verilerini ekler
+  ✅ Development serverları başlatır
+
+════════════════════════════════════════════════════════════════════════════
+
+🔧 MANUEL KURULUM (Detaylı Kontrol İsterseniz)
+════════════════════════════════════════════════════════════════════════════
+
+Terminal'de sırayla çalıştırın:
+
+# 1. Proje dizinine git
+cd /Users/onurcangunel/Desktop/KARGANOT
+
+# 2. Environment dosyası oluştur
+cp .env.example .env
+
+# 3. Root dependencies
+npm install --legacy-peer-deps
+
+# 4. Frontend dependencies
+cd apps/web
+npm install --legacy-peer-deps
+cd ../..
+
+# 5. Backend dependencies
+cd apps/api
+npm install --legacy-peer-deps
+cd ../..
+
+# 6. Docker başlat
+docker-compose up -d
+
+# 7. 10 saniye bekle
+sleep 10
+
+# 8. Database setup
+cd apps/api
+npx prisma generate
+npx prisma migrate dev --name init
+npx prisma db seed
+cd ../..
+
+# 9. Serverları başlat
+npm run dev
+
+════════════════════════════════════════════════════════════════════════════
+
+🌐 ERİŞİM ADRESLERİ
+════════════════════════════════════════════════════════════════════════════
+
+Serverlar başladıktan sonra tarayıcınızda şu adresleri açın:
+
+✨ Frontend:          http://localhost:3000
+🔧 Backend API:       http://localhost:4000/api
+📚 API Dokümantasyon: http://localhost:4000/api/docs
+💾 Database GUI:      http://localhost:5555 (Prisma Studio)
+📧 Email Test:        http://localhost:8025 (MailHog)
+🗄️  Storage:          http://localhost:9001 (MinIO)
+
+════════════════════════════════════════════════════════════════════════════
+
+👤 TEST KULLANICILAR
+════════════════════════════════════════════════════════════════════════════
+
+Admin Hesabı:
+  📧 Email:    admin@karganot.com
+  🔑 Şifre:    Admin123!
+  👑 Yetki:    Tüm yönetim işlemleri
+
+Öğrenci Hesabı:
+  📧 Email:    student@test.com
+  🔑 Şifre:    Student123!
+  👤 Yetki:    Not alım-satım
+
+════════════════════════════════════════════════════════════════════════════
+
+📊 PROJE YAPISI
+════════════════════════════════════════════════════════════════════════════
+
+KARGANOT/
+├── 📱 apps/web/          → Next.js 14 Frontend
+│   ├── src/app/          → Pages (App Router)
+│   ├── src/components/   → React Components
+│   └── src/lib/          → Utility functions
+│
+├── ⚙️  apps/api/          → NestJS Backend
+│   ├── src/modules/      → Feature modules
+│   ├── prisma/           → Database schema
+│   └── src/common/       → Shared utilities
+│
+├── 📚 docs/              → Dokümantasyon
+├── 🔧 scripts/           → Automation scripts
+└── 🐳 docker-compose.yml → Local services
+
+════════════════════════════════════════════════════════════════════════════
+
+🛠️ YARDIMCI KOMUTLAR
+════════════════════════════════════════════════════════════════════════════
+
+Database GUI başlat:
+  cd apps/api && npx prisma studio
+
+Docker durumu kontrol:
+  docker ps
+
+Docker logları görüntüle:
+  docker-compose logs -f
+
+Database reset:
+  cd apps/api && npx prisma migrate reset
+
+Test çalıştır:
+  npm test
+
+Build al (production):
+  npm run build
+
+════════════════════════════════════════════════════════════════════════════
+
+❌ SORUN GİDERME
+════════════════════════════════════════════════════════════════════════════
+
+Port zaten kullanımda hatası:
+  → Frontend için: cd apps/web && npm run dev -- -p 3001
+  → Backend için: .env dosyasında PORT=4001 yapın
+
+Docker çalışmıyor:
+  → docker-compose down
+  → docker-compose up -d
+
+Prisma hatası:
+  → cd apps/api
+  → npx prisma generate
+  → npx prisma migrate reset
+
+Module bulunamadı hatası:
+  → rm -rf node_modules package-lock.json
+  → npm install --legacy-peer-deps
+
+════════════════════════════════════════════════════════════════════════════
+
+📖 DAHA FAZLA BİLGİ
+════════════════════════════════════════════════════════════════════════════
+
+README.md         → Genel proje bilgisi
+INSTALL.md        → Detaylı kurulum rehberi
+COMMANDS.md       → Tüm terminal komutları
+QUICKSTART.md     → Hızlı başlangıç
+docs/API.md       → API dokümantasyonu
+
+════════════════════════════════════════════════════════════════════════════
+
+🎯 SONRAKİ ADIMLAR
+════════════════════════════════════════════════════════════════════════════
+
+1. ✅ Projeyi çalıştırın
+2. 🌐 http://localhost:3000 adresini açın
+3. 👤 Test kullanıcılarıyla giriş yapın
+4. 📝 Not yükleme özelliğini test edin
+5. 💳 Ödeme akışını inceleyin
+6. 👨‍💼 Admin paneli ile not onaylayın
+
+════════════════════════════════════════════════════════════════════════════
+
+📧 DESTEK
+════════════════════════════════════════════════════════════════════════════
+
+Sorularınız için:
+  📧 Email: destek@karganot.com
+  📚 Docs:  /Users/onurcangunel/Desktop/KARGANOT/docs/
+
+════════════════════════════════════════════════════════════════════════════
+
+🎉 Başarılar! KARGA NOT ile iyi geliştirmeler! 🚀
+
+════════════════════════════════════════════════════════════════════════════

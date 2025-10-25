@@ -1,0 +1,28 @@
+{
+  "universities": [
+    {
+      "id": "1",
+      "name": "İstanbul Üniversitesi",
+      "city": "İstanbul",
+      "type": "Devlet",
+      "faculties": []
+    },
+    {
+      "id": "2",
+      "name": "Ankara Üniversitesi",
+      "city": "Ankara",
+      "type": "Devlet",
+      "faculties": []
+    },
+    {
+      "id": "3",
+      "name": "İstanbul Teknik Üniversitesi",
+      "city": "İstanbul",
+      "type": "Devlet",
+      "faculties": []
+    }
+  ],
+  "note": "Bu dosya YÖK ATLAS API'den eksik gelen üniversiteler için fallback sağlar",
+  "last_updated": "2025-10-22",
+  "total_count": 208
+}

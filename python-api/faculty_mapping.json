@@ -1,0 +1,46 @@
+{
+  "BİNGÖL ÜNİVERSİTESİ": {
+    "İlahiyat Fakültesi": {
+      "keywords": ["ilahiyat", "temel islam", "felsefe ve din", "din kültürü"],
+      "departments": [
+        "İlahiyat",
+        "Temel İslam Bilimleri",
+        "Felsefe ve Din Bilimleri"
+      ]
+    },
+    "Mühendislik Fakültesi": {
+      "keywords": ["mühendislik", "elektrik", "elektronik", "makine", "bilgisayar", "inşaat"],
+      "departments": [
+        "Bilgisayar Mühendisliği",
+        "Elektrik-Elektronik Mühendisliği",
+        "Makine Mühendisliği",
+        "İnşaat Mühendisliği",
+        "Endüstri Mühendisliği",
+        "Kimya Mühendisliği",
+        "Yazılım Mühendisliği"
+      ]
+    },
+    "Diş Hekimliği Fakültesi": {
+      "keywords": ["diş hekimliği", "diş"],
+      "departments": ["Diş Hekimliği"]
+    }
+  },
+  "EGE ÜNİVERSİTESİ": {
+    "Mühendislik Fakültesi": {
+      "keywords": ["mühendislik"],
+      "departments": [
+        "Bilgisayar Mühendisliği",
+        "Elektrik-Elektronik Mühendisliği",
+        "Makine Mühendisliği",
+        "İnşaat Mühendisliği",
+        "Kimya Mühendisliği"
+      ]
+    }
+  },
+  "İSTANBUL MEDİPOL ÜNİVERSİTESİ": {
+    "Diş Hekimliği Fakültesi": {
+      "keywords": ["diş hekimliği"],
+      "departments": ["Diş Hekimliği"]
+    }
+  }
+}

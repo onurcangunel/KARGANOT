@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: karganot-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: karganot
+      POSTGRES_PASSWORD: karganot123
+      POSTGRES_DB: karganot
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/seed-data.sql:/docker-entrypoint-initdb.d/seed.sql
+    networks:
+      - karganot-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: karganot-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass karganot123
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - karganot-network
+
+  minio:
+    image: minio/minio:latest
+    container_name: karganot-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: karganot
+      MINIO_ROOT_PASSWORD: karganot123
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - karganot-network
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: karganot-mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025"  # SMTP
+      - "8025:8025"  # Web UI
+    networks:
+      - karganot-network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  minio_data:
+    driver: local
+
+networks:
+  karganot-network:
+    driver: bridge

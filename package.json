@@ -1,0 +1,54 @@
+{
+  "name": "karga-not",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Türkiye Not Paylaşım Platformu",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:web\" \"npm run dev:api\"",
+    "dev:web": "cd apps/web && npm run dev",
+    "dev:api": "cd apps/api && npm run start:dev",
+    "build": "npm run build:web && npm run build:api",
+    "build:web": "cd apps/web && npm run build",
+    "build:api": "cd apps/api && npm run build",
+    "start": "npm run start:web",
+    "start:web": "cd apps/web && npm start",
+    "start:api": "cd apps/api && npm run start:prod",
+    "test": "npm run test:web && npm run test:api",
+    "test:web": "cd apps/web && npm test",
+    "test:api": "cd apps/api && npm run test",
+    "lint": "npm run lint:web && npm run lint:api",
+    "lint:web": "cd apps/web && npm run lint",
+    "lint:api": "cd apps/api && npm run lint",
+    "setup": "npm install && npm run setup:db",
+    "setup:db": "cd apps/api && npx prisma migrate dev && npx prisma db seed",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "keywords": [
+    "education",
+    "notes",
+    "marketplace",
+    "turkey",
+    "university"
+  ],
+  "author": "KARGA NOT Team",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/karga-not.git"
+  },
+  "dependencies": {
+    "cheerio": "^1.1.2"
+  }
+}
