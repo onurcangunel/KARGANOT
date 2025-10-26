@@ -18,16 +18,15 @@ export default function DashboardPage() {
   
   const sampleQuestions = [
     { text: 'Matematik nasıl öğrenilir?', emoji: '📐' },
-    { text: 'Biyoloji hücre yapısı', emoji: '��' },
-    { text: 'Tarih konu özetleri', emoji: '��' },
+    { text: 'Biyoloji hücre yapısı', emoji: '🧬' },
+    { text: 'Tarih konu özetleri', emoji: '📜' },
     { text: 'Fizik formülleri', emoji: '⚛️' },
   ]
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (question.trim()) {
-      const url = '/ai-chat?q=' + encodeURIComponent(question)
-      router.push(url)
+      router.push(\`/ai-chat?q=\${encodeURIComponent(question)}\`)
     }
   }
 
@@ -65,24 +64,12 @@ export default function DashboardPage() {
             <h2 className="text-4xl font-bold text-gray-900 mb-4">Hoş geldiniz! 👋</h2>
             <p className="text-xl text-gray-700 mb-8">Ödevleriniz için AI destekli yardım alın</p>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <textarea 
-                value={question} 
-                onChange={(e) => setQuestion(e.target.value)} 
-                placeholder="Sorunuzu buraya yazın..." 
-                className="w-full px-6 py-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none resize-none" 
-                rows={4} 
-              />
-              <button type="submit" className="px-8 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-semibold">
-                Soru Sor 🚀
-              </button>
+              <textarea value={question} onChange={(e) => setQuestion(e.target.value)} placeholder="Sorunuzu buraya yazın..." className="w-full px-6 py-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none resize-none" rows={4} />
+              <button type="submit" className="px-8 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-semibold">Soru Sor 🚀</button>
             </form>
             <div className="grid grid-cols-2 gap-3 mt-6">
               {sampleQuestions.map((q, i) => (
-                <button 
-                  key={i} 
-                  onClick={() => setQuestion(q.text)} 
-                  className="flex items-center gap-3 p-4 bg-white/90 rounded-xl hover:bg-white hover:shadow-lg transition-all text-left border border-gray-200"
-                >
+                <button key={i} onClick={() => setQuestion(q.text)} className="flex items-center gap-3 p-4 bg-white/90 rounded-xl hover:bg-white hover:shadow-lg transition-all text-left border border-gray-200">
                   <span className="text-2xl">{q.emoji}</span>
                   <span className="text-sm text-gray-700 font-medium flex-1">{q.text}</span>
                 </button>
@@ -96,12 +83,7 @@ export default function DashboardPage() {
             <div className="text-6xl mb-4">📄</div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">Belge Yükleyin</h3>
             <p className="text-gray-600 mb-4">PDF, Word veya Excel dosyalarınızı yükleyin</p>
-            <button 
-              onClick={() => router.push('/belge-yukle')} 
-              className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-semibold"
-            >
-              📤 Yüklemeye Başla
-            </button>
+            <button onClick={() => router.push('/belge-yukle')} className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-semibold">📤 Yüklemeye Başla</button>
           </div>
         </div>
       </main>
