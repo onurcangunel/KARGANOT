@@ -1,4 +1,5 @@
 /**
+export const dynamic = 'force-dynamic';
  * YÖK ATLAS - Birim (Fakülte/MYO) Listesi API
  * 
  * GET /api/yok-atlas/units?universityId=xxx&search=mühendislik

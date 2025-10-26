@@ -1,4 +1,5 @@
 /**
+export const dynamic = 'force-dynamic';
  * YÖK ATLAS - Üniversite Listesi API
  * 
  * GET /api/yok-atlas/universities?search=muğla

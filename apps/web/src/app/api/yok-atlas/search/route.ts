@@ -1,4 +1,5 @@
 /**
+export const dynamic = 'force-dynamic';
  * YÖK ATLAS - Genel Arama API
  * 
  * GET /api/yok-atlas/search?q=muğla+yatağan

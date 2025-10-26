@@ -1,4 +1,5 @@
 /**
+export const dynamic = 'force-dynamic';
  * YÖK ATLAS - Bölüm Listesi API
  * 
  * GET /api/yok-atlas/departments?unitId=xxx&search=bilgisayar
