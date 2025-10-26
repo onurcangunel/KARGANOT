@@ -23,12 +23,65 @@ import {
   Shield
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { validateFile, showNotification } from '@/lib/helpers'
 
 export default function UploadPage() {
   const [selectedSchool, setSelectedSchool] = useState('')
   const [selectedCourse, setSelectedCourse] = useState('')
   const [selectedPeriod, setSelectedPeriod] = useState('Güz 2025')
   const [uploadProgress, setUploadProgress] = useState(0)
+  const [isUploading, setIsUploading] = useState(false)
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null)
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Validate file
+    const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']
+    const maxSize = 50 * 1024 * 1024 // 50MB
+
+    if (!validateFile(file, allowedTypes, maxSize)) {
+      showNotification('Geçersiz dosya. PDF, DOC, DOCX veya XLSX formatında ve maksimum 50MB boyutunda olmalı.', 'error')
+      return
+    }
+
+    setUploadedFile(file)
+    setIsUploading(true)
+    setUploadProgress(0)
+    
+    showNotification('Dosya yükleniyor...', 'info')
+
+    // Simulate upload progress
+    const interval = setInterval(() => {
+      setUploadProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(interval)
+          setIsUploading(false)
+          showNotification(`${file.name} başarıyla yüklendi! 🎉`, 'success')
+          return 100
+        }
+        return prev + 10
+      })
+    }, 200)
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+  }
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault()
+    const file = e.dataTransfer.files?.[0]
+    
+    if (file) {
+      // Create a mock event to use existing upload handler
+      const mockEvent = {
+        target: { files: [file] }
+      } as any
+      await handleFileUpload(mockEvent)
+    }
+  }
 
   const exampleDocuments = [
     { title: 'Deneme Sınavı', course: 'Matematik 1001', week: '5. Hafta', pages: 7 },
@@ -245,15 +298,66 @@ export default function UploadPage() {
         </p>
 
         {/* Drag & Drop Upload Area */}
-        <div className="max-w-2xl mx-auto border-2 border-dashed border-blue-300 rounded-xl p-12 text-center bg-gradient-to-br from-blue-50 to-purple-50 hover:border-blue-500 transition-colors">
+        <div 
+          className="max-w-2xl mx-auto border-2 border-dashed border-blue-300 rounded-xl p-12 text-center bg-gradient-to-br from-blue-50 to-purple-50 hover:border-blue-500 transition-colors relative"
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
+        >
           <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
             <Upload className="w-8 h-8 text-white" />
           </div>
           <h3 className="text-xl font-bold text-gray-900 mb-2">Dosyaları buraya sürükleyin</h3>
           <p className="text-gray-600 mb-6">veya bilgisayarınızdan seçin</p>
-          <Button className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold px-8 py-6 text-lg">
-            Dosya Seç
-          </Button>
+          
+          <label htmlFor="file-upload">
+            <Button 
+              className={`bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold px-8 py-6 text-lg cursor-pointer ${isUploading ? 'loading opacity-75' : ''}`}
+              disabled={isUploading}
+              asChild
+            >
+              <span>{isUploading ? 'Yükleniyor...' : 'Dosya Seç'}</span>
+            </Button>
+          </label>
+          <input
+            id="file-upload"
+            type="file"
+            className="hidden"
+            accept=".pdf,.doc,.docx,.xls,.xlsx"
+            onChange={handleFileUpload}
+            disabled={isUploading}
+          />
+
+          {/* Upload Progress */}
+          {isUploading && (
+            <div className="mt-6">
+              <div className="bg-gray-200 rounded-full h-3 overflow-hidden">
+                <div 
+                  className="bg-gradient-to-r from-blue-500 to-purple-500 h-full transition-all duration-300"
+                  style={{ width: `${uploadProgress}%` }}
+                />
+              </div>
+              <p className="text-sm text-gray-600 mt-2">{uploadProgress}% tamamlandı</p>
+            </div>
+          )}
+
+          {/* Uploaded File Info */}
+          {uploadedFile && !isUploading && (
+            <div className="mt-6 bg-green-50 border border-green-200 rounded-lg p-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Check className="w-5 h-5 text-green-600" />
+                <div className="text-left">
+                  <p className="font-semibold text-gray-900">{uploadedFile.name}</p>
+                  <p className="text-sm text-gray-600">{(uploadedFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setUploadedFile(null)}
+                className="text-red-500 hover:text-red-700"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+          )}
         </div>
       </section>
 

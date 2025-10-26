@@ -4,13 +4,15 @@ import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Eye, EyeOff, Mail, Lock, User, AlertCircle } from 'lucide-react'
+import { Eye, EyeOff, Mail, Lock, User, AlertCircle, CheckCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { showNotification, validateEmail, validatePassword, login } from '@/lib/helpers'
 
 export default function SimpleLoginPage() {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login')
   const [showPassword, setShowPassword] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
   
   // Login form state
   const [loginEmail, setLoginEmail] = useState('')
@@ -24,66 +26,114 @@ export default function SimpleLoginPage() {
   // Form errors
   const [error, setError] = useState('')
 
-  const validateEmail = (email: string) => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    return re.test(email)
-  }
-
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setIsLoading(true)
 
-    if (!loginEmail || !validateEmail(loginEmail)) {
-      setError('Geçerli bir e-posta adresi girin')
-      return
-    }
+    try {
+      if (!loginEmail || !validateEmail(loginEmail)) {
+        setError('Geçerli bir e-posta adresi girin')
+        showNotification('Geçerli bir e-posta adresi girin', 'error')
+        return
+      }
 
-    if (!loginPassword || loginPassword.length < 6) {
-      setError('Şifre en az 6 karakter olmalı')
-      return
-    }
+      if (!loginPassword || loginPassword.length < 6) {
+        setError('Şifre en az 6 karakter olmalı')
+        showNotification('Şifre en az 6 karakter olmalı', 'error')
+        return
+      }
 
-    // Simulate login - save to localStorage
-    const user = {
-      name: loginEmail.split('@')[0],
-      email: loginEmail,
-      subscription: 'basic',
-      loginTime: new Date().toISOString()
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000))
+
+      // Save to localStorage
+      const user = {
+        name: loginEmail.split('@')[0],
+        email: loginEmail,
+        subscription: 'basic',
+        loginTime: new Date().toISOString()
+      }
+      
+      login(user)
+      showNotification('Giriş başarılı! Yönlendiriliyorsunuz...', 'success')
+      
+      setTimeout(() => {
+        router.push('/dashboard')
+      }, 500)
+    } catch (err) {
+      setError('Giriş yapılırken bir hata oluştu')
+      showNotification('Giriş yapılırken bir hata oluştu', 'error')
+    } finally {
+      setIsLoading(false)
     }
-    
-    localStorage.setItem('karganot_user', JSON.stringify(user))
-    router.push('/dashboard')
   }
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setIsLoading(true)
 
-    if (!registerName) {
-      setError('Ad soyad gerekli')
-      return
-    }
+    try {
+      if (!registerName || registerName.length < 3) {
+        setError('Ad soyad en az 3 karakter olmalı')
+        showNotification('Ad soyad en az 3 karakter olmalı', 'error')
+        return
+      }
 
-    if (!registerEmail || !validateEmail(registerEmail)) {
-      setError('Geçerli bir e-posta adresi girin')
-      return
-    }
+      if (!registerEmail || !validateEmail(registerEmail)) {
+        setError('Geçerli bir e-posta adresi girin')
+        showNotification('Geçerli bir e-posta adresi girin', 'error')
+        return
+      }
 
-    if (!registerPassword || registerPassword.length < 8) {
-      setError('Şifre en az 8 karakter olmalı')
-      return
-    }
+      const passwordValidation = validatePassword(registerPassword)
+      if (!passwordValidation.isValid) {
+        setError(passwordValidation.errors[0])
+        showNotification(passwordValidation.errors[0], 'error')
+        return
+      }
 
-    // Simulate registration
-    const user = {
-      name: registerName,
-      email: registerEmail,
-      subscription: 'free',
-      loginTime: new Date().toISOString()
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000))
+
+      // Save to localStorage
+      const user = {
+        name: registerName,
+        email: registerEmail,
+        subscription: 'free',
+        loginTime: new Date().toISOString()
+      }
+      
+      login(user)
+      showNotification('Kayıt başarılı! Hoş geldiniz 🎉', 'success')
+      
+      setTimeout(() => {
+        router.push('/dashboard')
+      }, 500)
+    } catch (err) {
+      setError('Kayıt olurken bir hata oluştu')
+      showNotification('Kayıt olurken bir hata oluştu', 'error')
+    } finally {
+      setIsLoading(false)
     }
+  }
+
+  // Password strength indicator
+  const getPasswordStrength = (password: string) => {
+    if (!password) return { strength: 0, label: '', color: '' }
     
-    localStorage.setItem('karganot_user', JSON.stringify(user))
-    router.push('/dashboard')
+    let strength = 0
+    if (password.length >= 8) strength++
+    if (/[A-Z]/.test(password)) strength++
+    if (/[a-z]/.test(password)) strength++
+    if (/[0-9]/.test(password)) strength++
+    if (/[^A-Za-z0-9]/.test(password)) strength++
+    
+    if (strength <= 2) return { strength, label: 'Zayıf', color: 'bg-red-500' }
+    if (strength === 3) return { strength, label: 'Orta', color: 'bg-yellow-500' }
+    if (strength === 4) return { strength, label: 'İyi', color: 'bg-green-500' }
+    return { strength, label: 'Güçlü', color: 'bg-green-600' }
   }
 
   return (
@@ -218,9 +268,10 @@ export default function SimpleLoginPage() {
                 {/* Submit Button */}
                 <Button 
                   type="submit"
-                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 rounded-lg shadow-lg hover:shadow-xl transition-all"
+                  className={`w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 rounded-lg shadow-lg hover:shadow-xl transition-all ${isLoading ? 'loading opacity-75 cursor-not-allowed' : ''}`}
+                  disabled={isLoading}
                 >
-                  Giriş Yap
+                  {isLoading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
                 </Button>
 
                 {/* Demo Account Info */}
@@ -295,14 +346,34 @@ export default function SimpleLoginPage() {
                   {/* Password Strength */}
                   {registerPassword && (
                     <div className="mt-2">
-                      <div className="flex gap-1">
-                        <div className={`h-1 flex-1 rounded transition-colors ${registerPassword.length >= 2 ? 'bg-red-500' : 'bg-gray-200'}`}></div>
-                        <div className={`h-1 flex-1 rounded transition-colors ${registerPassword.length >= 5 ? 'bg-yellow-500' : 'bg-gray-200'}`}></div>
-                        <div className={`h-1 flex-1 rounded transition-colors ${registerPassword.length >= 8 ? 'bg-green-500' : 'bg-gray-200'}`}></div>
+                      <div className="flex gap-1 mb-1">
+                        {[1,2,3,4,5].map((i) => {
+                          const { strength } = getPasswordStrength(registerPassword)
+                          return (
+                            <div 
+                              key={i} 
+                              className={`h-1 flex-1 rounded transition-all ${
+                                i <= strength 
+                                  ? getPasswordStrength(registerPassword).color 
+                                  : 'bg-gray-200'
+                              }`}
+                            />
+                          )
+                        })}
                       </div>
-                      <p className="text-xs text-gray-600 mt-1">
-                        Şifre güvenliği: {registerPassword.length < 5 ? 'Zayıf' : registerPassword.length < 8 ? 'Orta' : 'Güçlü'}
-                      </p>
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs text-gray-600">
+                          Şifre güvenliği: <span className="font-semibold">{getPasswordStrength(registerPassword).label}</span>
+                        </p>
+                        {getPasswordStrength(registerPassword).strength >= 4 && (
+                          <CheckCircle className="w-4 h-4 text-green-500" />
+                        )}
+                      </div>
+                      {getPasswordStrength(registerPassword).strength < 4 && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          💡 İpucu: Büyük harf, küçük harf, rakam ve özel karakter kullanın
+                        </p>
+                      )}
                     </div>
                   )}
                 </div>
@@ -323,9 +394,10 @@ export default function SimpleLoginPage() {
                 {/* Submit Button */}
                 <Button 
                   type="submit"
-                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 rounded-lg shadow-lg hover:shadow-xl transition-all"
+                  className={`w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 rounded-lg shadow-lg hover:shadow-xl transition-all ${isLoading ? 'loading opacity-75 cursor-not-allowed' : ''}`}
+                  disabled={isLoading}
                 >
-                  Hesap Oluştur
+                  {isLoading ? 'Hesap oluşturuluyor...' : 'Hesap Oluştur'}
                 </Button>
               </form>
             )}
