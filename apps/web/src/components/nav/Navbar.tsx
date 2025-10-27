@@ -4,10 +4,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Menu, X } from "lucide-react";
-import { AnimatePresence, motion } from "framer-motion";
+import { Menu } from "lucide-react";
 import NavbarItem from "./NavbarItem";
 import ProfileMenu from "./ProfileMenu";
+import MobileMenu from "./MobileMenu";
 
 const items = [
   { href: "/",                label: "Ana Sayfa",  icon: "/images/navbar/home.png",    match: /^\/$/ },
@@ -62,46 +62,21 @@ export default function Navbar() {
           
           {/* Mobile Hamburger */}
           <button
-            onClick={() => setMobileOpen(!mobileOpen)}
+            onClick={() => setMobileOpen(true)}
             className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition"
-            aria-label="Toggle menu"
+            aria-label="Menüyü aç"
           >
-            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            <Menu className="w-5 h-5" />
           </button>
         </div>
       </nav>
 
-      {/* Mobile Menü */}
-      <AnimatePresence>
-        {mobileOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
-            className="md:hidden border-t border-black/5 bg-white/95 backdrop-blur-md overflow-hidden"
-          >
-            <ul className="py-2 px-4 space-y-1">
-              {items.map((it) => {
-                const active = it.match.test(pathname);
-                return (
-                  <li key={it.href}>
-                    <Link
-                      href={it.href}
-                      onClick={() => setMobileOpen(false)}
-                      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-medium
-                        ${active ? "bg-orange-50 text-orange-600 font-semibold" : "text-gray-700 hover:bg-gray-50"}`}
-                    >
-                      <Image src={it.icon} alt="" width={20} height={20} className="shrink-0" />
-                      <span>{it.label}</span>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Mobile Menu Component */}
+      <MobileMenu 
+        open={mobileOpen} 
+        onClose={() => setMobileOpen(false)} 
+        items={items}
+      />
     </header>
   );
 }
