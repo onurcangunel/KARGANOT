@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '@/hooks/useAuth';
 import {
   Home,
   FileText,
@@ -30,10 +31,14 @@ interface MainLayoutProps {
 export default function MainLayout({ children }: MainLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const { user, isAuthenticated, login, logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // TODO: Get from auth context
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const navLinks = [
@@ -89,7 +94,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
       />
 
       {/* Navbar */}
-      <nav className="bg-white shadow-md sticky top-0 z-50 relative">
+      <nav className="bg-white/90 backdrop-blur-md shadow-md sticky top-0 z-50 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
@@ -121,11 +126,11 @@ export default function MainLayout({ children }: MainLayoutProps) {
                     }`}
                   >
                     <Image
-                      src="/image/crow.svg"
+                      src="/icons/crow.svg"
                       alt="crow"
                       width={14}
                       height={14}
-                      className={`${isActive ? 'opacity-100' : 'opacity-60 group-hover:opacity-100'}`}
+                      className={`shrink-0 ${isActive ? 'opacity-100' : 'opacity-60 group-hover:opacity-100'}`}
                     />
                     <span>{link.label}</span>
                     {isActive && (
@@ -143,14 +148,16 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
             {/* Auth Section */}
             <div className="hidden lg:flex items-center gap-3">
-              {isLoggedIn ? (
+              {isAuthenticated ? (
                 <div className="relative" ref={dropdownRef}>
                   <button
                     onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                    onMouseEnter={() => setIsProfileDropdownOpen(true)}
+                    onMouseLeave={() => setIsProfileDropdownOpen(false)}
                     className="flex items-center gap-2 p-2 rounded-full hover:bg-gray-100 transition-colors"
                   >
                     <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center text-white font-bold">
-                      O
+                      {user?.name?.charAt(0).toUpperCase() || 'K'}
                     </div>
                   </button>
 
@@ -162,11 +169,13 @@ export default function MainLayout({ children }: MainLayoutProps) {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
                         transition={{ duration: 0.2 }}
-                        className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden"
+                        onMouseEnter={() => setIsProfileDropdownOpen(true)}
+                        onMouseLeave={() => setIsProfileDropdownOpen(false)}
+                        className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-50"
                       >
                         <div className="p-4 border-b border-gray-200">
-                          <p className="font-bold text-gray-900">Onur Can Günel</p>
-                          <p className="text-sm text-gray-600">onur@example.com</p>
+                          <p className="font-bold text-gray-900">{user?.name || 'Kullanıcı'}</p>
+                          <p className="text-sm text-gray-600">{user?.email || ''}</p>
                         </div>
                         <div className="py-2">
                           {profileMenuItems.map((item) => (
@@ -184,8 +193,9 @@ export default function MainLayout({ children }: MainLayoutProps) {
                         <div className="border-t border-gray-200">
                           <button
                             onClick={() => {
-                              setIsLoggedIn(false);
+                              logout();
                               setIsProfileDropdownOpen(false);
+                              router.push('/');
                             }}
                             className="flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 transition-colors w-full text-left"
                           >
@@ -251,13 +261,13 @@ export default function MainLayout({ children }: MainLayoutProps) {
                             : 'text-gray-700 hover:bg-orange-50 hover:text-orange-600'
                         }`}
                       >
-                        <Image src="/image/crow.svg" alt="crow" width={16} height={16} />
+                        <Image src="/icons/crow.svg" alt="crow" width={16} height={16} className="shrink-0" />
                         <span>{link.label}</span>
                       </Link>
                     );
                   })}
                   <div className="border-t border-gray-200 pt-4 mt-4">
-                    {isLoggedIn ? (
+                    {isAuthenticated ? (
                       <>
                         {profileMenuItems.map((item) => (
                           <Link
@@ -270,7 +280,10 @@ export default function MainLayout({ children }: MainLayoutProps) {
                           </Link>
                         ))}
                         <button
-                          onClick={() => setIsLoggedIn(false)}
+                          onClick={() => {
+                            logout();
+                            router.push('/');
+                          }}
                           className="flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 transition-colors w-full text-left"
                         >
                           <LogOut className="w-4 h-4" />
@@ -426,7 +439,33 @@ export default function MainLayout({ children }: MainLayoutProps) {
                 </button>
               </div>
 
-              <form className="space-y-4">
+              {error && (
+                <div className="mb-4 p-3 bg-red-100 border border-red-300 text-red-700 rounded-lg text-sm">
+                  {error}
+                </div>
+              )}
+
+              <form 
+                className="space-y-4"
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  setIsLoading(true);
+                  setError('');
+                  
+                  const result = await login(loginEmail, loginPassword);
+                  
+                  if (result.success) {
+                    setIsLoginModalOpen(false);
+                    setLoginEmail('');
+                    setLoginPassword('');
+                    router.push('/');
+                  } else {
+                    setError(result.error || 'Giriş başarısız oldu');
+                  }
+                  
+                  setIsLoading(false);
+                }}
+              >
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     E-posta
@@ -434,6 +473,9 @@ export default function MainLayout({ children }: MainLayoutProps) {
                   <input
                     type="email"
                     placeholder="ornek@email.com"
+                    value={loginEmail}
+                    onChange={(e) => setLoginEmail(e.target.value)}
+                    required
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all"
                   />
                 </div>
@@ -444,6 +486,9 @@ export default function MainLayout({ children }: MainLayoutProps) {
                   <input
                     type="password"
                     placeholder="••••••••"
+                    value={loginPassword}
+                    onChange={(e) => setLoginPassword(e.target.value)}
+                    required
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all"
                   />
                 </div>
@@ -458,9 +503,10 @@ export default function MainLayout({ children }: MainLayoutProps) {
                 </div>
                 <button
                   type="submit"
-                  className="w-full py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg hover:from-orange-600 hover:to-orange-700 transition-all shadow-md hover:shadow-lg font-semibold text-lg"
+                  disabled={isLoading}
+                  className="w-full py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg hover:from-orange-600 hover:to-orange-700 transition-all shadow-md hover:shadow-lg font-semibold text-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Giriş Yap
+                  {isLoading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
                 </button>
               </form>
 
@@ -480,4 +526,4 @@ export default function MainLayout({ children }: MainLayoutProps) {
   );
 }
 
-// KARGANOT Unified Layout Update - by Onur & Copilot
+// KARGANOT Navbar & Auth Dropdown Fix - by Onur & Copilot
