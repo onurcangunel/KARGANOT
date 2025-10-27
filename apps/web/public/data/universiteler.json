@@ -1,0 +1,159 @@
+{
+  "universiteler": [
+    {
+      "id": "bogazici",
+      "ad": "Boğaziçi Üniversitesi",
+      "slug": "bogazici",
+      "fakulteler": [
+        {
+          "id": "muhendislik",
+          "ad": "Mühendislik Fakültesi",
+          "bolumler": [
+            {
+              "id": "bilgisayar",
+              "ad": "Bilgisayar Mühendisliği",
+              "siniflar": [1, 2, 3, 4],
+              "dersler": [
+                { "id": "cmpe150", "ad": "Programlamaya Giriş", "sinif": 1 },
+                { "id": "cmpe250", "ad": "Veri Yapıları", "sinif": 2 },
+                { "id": "cmpe300", "ad": "Algoritmalar", "sinif": 3 },
+                { "id": "cmpe478", "ad": "Makine Öğrenmesi", "sinif": 4 }
+              ]
+            },
+            {
+              "id": "elektrik-elektronik",
+              "ad": "Elektrik-Elektronik Mühendisliği",
+              "siniflar": [1, 2, 3, 4],
+              "dersler": [
+                { "id": "ee101", "ad": "Elektrik Devreleri I", "sinif": 1 },
+                { "id": "ee202", "ad": "Elektronik Devreler", "sinif": 2 }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "iktisadi-idari",
+          "ad": "İktisadi ve İdari Bilimler Fakültesi",
+          "bolumler": [
+            {
+              "id": "isletme",
+              "ad": "İşletme",
+              "siniflar": [1, 2, 3, 4],
+              "dersler": [
+                { "id": "mgmt101", "ad": "İşletmeye Giriş", "sinif": 1 },
+                { "id": "mgmt201", "ad": "Pazarlama", "sinif": 2 }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "itu",
+      "ad": "İstanbul Teknik Üniversitesi",
+      "slug": "itu",
+      "fakulteler": [
+        {
+          "id": "muhendislik",
+          "ad": "Mühendislik Fakültesi",
+          "bolumler": [
+            {
+              "id": "bilgisayar",
+              "ad": "Bilgisayar Mühendisliği",
+              "siniflar": [1, 2, 3, 4],
+              "dersler": [
+                { "id": "blg101", "ad": "Programlama Temelleri", "sinif": 1 },
+                { "id": "blg202", "ad": "Nesne Yönelimli Programlama", "sinif": 2 },
+                { "id": "blg335", "ad": "Veritabanı Sistemleri", "sinif": 3 }
+              ]
+            },
+            {
+              "id": "insaat",
+              "ad": "İnşaat Mühendisliği",
+              "siniflar": [1, 2, 3, 4],
+              "dersler": [
+                { "id": "ins101", "ad": "Statik", "sinif": 1 },
+                { "id": "ins201", "ad": "Mukavemet", "sinif": 2 }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "odtu",
+      "ad": "Orta Doğu Teknik Üniversitesi",
+      "slug": "odtu",
+      "fakulteler": [
+        {
+          "id": "muhendislik",
+          "ad": "Mühendislik Fakültesi",
+          "bolumler": [
+            {
+              "id": "bilgisayar",
+              "ad": "Bilgisayar Mühendisliği",
+              "siniflar": [1, 2, 3, 4],
+              "dersler": [
+                { "id": "ceng111", "ad": "Programlamaya Giriş", "sinif": 1 },
+                { "id": "ceng213", "ad": "Veri Yapıları", "sinif": 2 },
+                { "id": "ceng334", "ad": "İşletim Sistemleri", "sinif": 3 }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fen-edebiyat",
+          "ad": "Fen Edebiyat Fakültesi",
+          "bolumler": [
+            {
+              "id": "matematik",
+              "ad": "Matematik",
+              "siniflar": [1, 2, 3, 4],
+              "dersler": [
+                { "id": "math101", "ad": "Kalkülüs I", "sinif": 1 },
+                { "id": "math201", "ad": "Diferansiyel Denklemler", "sinif": 2 }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bilkent",
+      "ad": "Bilkent Üniversitesi",
+      "slug": "bilkent",
+      "fakulteler": [
+        {
+          "id": "muhendislik",
+          "ad": "Mühendislik Fakültesi",
+          "bolumler": [
+            {
+              "id": "bilgisayar",
+              "ad": "Bilgisayar Mühendisliği",
+              "siniflar": [1, 2, 3, 4],
+              "dersler": [
+                { "id": "cs101", "ad": "Programlama", "sinif": 1 },
+                { "id": "cs201", "ad": "Veri Yapıları", "sinif": 2 }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "etiketler": [
+    "Vize",
+    "Final",
+    "Ödev",
+    "Proje",
+    "Kısa Sınav",
+    "2024 Güz",
+    "2024 Bahar",
+    "2023 Güz",
+    "Çözümlü",
+    "Özet",
+    "Slayt",
+    "El Yazısı",
+    "Hoca Notu"
+  ]
+}

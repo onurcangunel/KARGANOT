@@ -75,7 +75,9 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
+     * - course-hero-dashboard (new dashboard - exempt from middleware)
+     * - test-page (test page)
      */
-    '/((?!api|_next/static|_next/image|favicon.ico|logo.svg|karga-logo.png).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|logo.svg|karga-logo.png|course-hero-dashboard|test-page|videos).*)',
   ],
 };

@@ -52,12 +52,38 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-3">
+            {/* Navigation Links */}
+            <Link
+              href="/landing"
+              className="px-3 py-2 text-gray-700 hover:text-orange-600 font-medium transition-colors"
+            >
+              Ana Sayfa
+            </Link>
+            <Link
+              href="/belgeler"
+              className="px-3 py-2 text-gray-700 hover:text-orange-600 font-medium transition-colors"
+            >
+              Belgeler
+            </Link>
+            <Link
+              href="/hakkimizda"
+              className="px-3 py-2 text-gray-700 hover:text-orange-600 font-medium transition-colors"
+            >
+              Hakkımızda
+            </Link>
+            <Link
+              href="/pricing"
+              className="px-3 py-2 text-orange-600 hover:text-orange-700 font-semibold transition-colors"
+            >
+              Premium
+            </Link>
+
             {/* Upload Button */}
             <Button
               asChild
-              className="bg-secondary hover:bg-secondary/90 text-gray-900 font-semibold"
+              className="bg-orange-500 hover:bg-orange-600 text-white font-semibold"
             >
-              <Link href="/upload" className="flex items-center gap-2">
+              <Link href="/belgeler/yukle" className="flex items-center gap-2">
                 <Upload className="w-4 h-4" />
                 Yükle
               </Link>
@@ -151,8 +177,36 @@ export default function Header() {
           <nav className="md:hidden py-4 border-t border-gray-200">
             <div className="flex flex-col gap-3">
               <Link
-                href="/upload"
-                className="flex items-center gap-2 text-gray-700 hover:text-primary py-2"
+                href="/landing"
+                className="flex items-center gap-2 text-gray-700 hover:text-orange-600 py-2 font-medium"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Ana Sayfa
+              </Link>
+              <Link
+                href="/belgeler"
+                className="flex items-center gap-2 text-gray-700 hover:text-orange-600 py-2 font-medium"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Belgeler
+              </Link>
+              <Link
+                href="/hakkimizda"
+                className="flex items-center gap-2 text-gray-700 hover:text-orange-600 py-2 font-medium"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Hakkımızda
+              </Link>
+              <Link
+                href="/pricing"
+                className="flex items-center gap-2 text-orange-600 hover:text-orange-700 py-2 font-semibold"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Premium
+              </Link>
+              <Link
+                href="/belgeler/yukle"
+                className="flex items-center gap-2 text-gray-700 hover:text-orange-600 py-2"
                 onClick={() => setIsMenuOpen(false)}
               >
                 <Upload className="w-5 h-5" />
@@ -218,17 +272,4 @@ export default function Header() {
       </div>
     </header>
   )
-}
-                  </Button>
-                  <Button asChild>
-                    <Link href="/auth/register">Kayıt Ol</Link>
-                  </Button>
-                </>
-              )}
-            </div>
-          </nav>
-        )}
-      </div>
-    </header>
-  );
 }

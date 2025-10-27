@@ -1,0 +1,308 @@
+// KARGANOT MVP Build - by Onur & Copilot
+// Prisma Schema - PostgreSQL Database Model
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────
+// 1. USER MANAGEMENT
+// ─────────────────────────────────────────
+
+model User {
+  id                String   @id @default(uuid())
+  email             String   @unique
+  passwordHash      String   @map("password_hash")
+  name              String
+  universityId      String?  @map("university_id")
+  facultyId         String?  @map("faculty_id")
+  departmentId      String?  @map("department_id")
+  
+  plan              UserPlan @default(FREE)
+  planExpiresAt     DateTime? @map("plan_expires_at")
+  
+  role              UserRole @default(USER)
+  isEmailVerified   Boolean  @default(false) @map("is_email_verified")
+  
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+  
+  // Relations
+  university        University?  @relation(fields: [universityId], references: [id])
+  faculty           Faculty?     @relation(fields: [facultyId], references: [id])
+  department        Department?  @relation(fields: [departmentId], references: [id])
+  
+  notes             Note[]
+  ratings           Rating[]
+  reports           Report[]
+  downloads         Download[]
+  transactions      Transaction[]
+  refreshTokens     RefreshToken[]
+  
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String   @map("user_id")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("refresh_tokens")
+}
+
+enum UserPlan {
+  FREE
+  PREMIUM
+}
+
+enum UserRole {
+  USER
+  ADMIN
+  MODERATOR
+}
+
+// ─────────────────────────────────────────
+// 2. UNIVERSITY HIERARCHY
+// ─────────────────────────────────────────
+
+model University {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  slug      String   @unique
+  city      String?
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  faculties Faculty[]
+  users     User[]
+  
+  @@map("universities")
+}
+
+model Faculty {
+  id            String   @id @default(uuid())
+  universityId  String   @map("university_id")
+  name          String
+  slug          String
+  createdAt     DateTime @default(now()) @map("created_at")
+  
+  university    University   @relation(fields: [universityId], references: [id], onDelete: Cascade)
+  departments   Department[]
+  users         User[]
+  
+  @@unique([universityId, slug])
+  @@map("faculties")
+}
+
+model Department {
+  id         String   @id @default(uuid())
+  facultyId  String   @map("faculty_id")
+  name       String
+  slug       String
+  createdAt  DateTime @default(now()) @map("created_at")
+  
+  faculty    Faculty  @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+  courses    Course[]
+  users      User[]
+  
+  @@unique([facultyId, slug])
+  @@map("departments")
+}
+
+model Course {
+  id           String   @id @default(uuid())
+  departmentId String   @map("department_id")
+  code         String
+  name         String
+  instructor   String?
+  semester     Int?
+  createdAt    DateTime @default(now()) @map("created_at")
+  
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  notes        Note[]
+  
+  @@unique([departmentId, code])
+  @@map("courses")
+}
+
+// ─────────────────────────────────────────
+// 3. NOTES SYSTEM
+// ─────────────────────────────────────────
+
+model Note {
+  id            String     @id @default(uuid())
+  courseId      String     @map("course_id")
+  uploaderId    String     @map("uploader_id")
+  
+  title         String
+  description   String?
+  type          NoteType
+  year          Int?
+  semester      String?
+  tags          String[]   @default([])
+  
+  fileUrl       String     @map("file_url")
+  fileSize      Int        @map("file_size") // bytes
+  pageCount     Int?       @map("page_count")
+  
+  price         Decimal    @default(0) @db.Decimal(10, 2)
+  
+  status        NoteStatus @default(PENDING)
+  
+  downloadCount Int        @default(0) @map("download_count")
+  viewCount     Int        @default(0) @map("view_count")
+  
+  createdAt     DateTime   @default(now()) @map("created_at")
+  updatedAt     DateTime   @updatedAt @map("updated_at")
+  
+  // Relations
+  course        Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  uploader      User         @relation(fields: [uploaderId], references: [id], onDelete: Cascade)
+  
+  ratings       Rating[]
+  reports       Report[]
+  downloads     Download[]
+  
+  @@map("notes")
+}
+
+enum NoteType {
+  VIZE
+  FINAL
+  ODEV
+  PROJE
+  QUIZ
+  OZET
+  SLAYT
+}
+
+enum NoteStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// ─────────────────────────────────────────
+// 4. RATINGS & COMMENTS
+// ─────────────────────────────────────────
+
+model Rating {
+  id         String   @id @default(uuid())
+  noteId     String   @map("note_id")
+  userId     String   @map("user_id")
+  
+  score      Int      // 1-10
+  comment    String?
+  
+  status     CommentStatus @default(PENDING)
+  
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  
+  note       Note     @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([noteId, userId])
+  @@map("ratings")
+}
+
+enum CommentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// ─────────────────────────────────────────
+// 5. REPORTS
+// ─────────────────────────────────────────
+
+model Report {
+  id        String       @id @default(uuid())
+  noteId    String       @map("note_id")
+  reporterId String      @map("reporter_id")
+  
+  reason    ReportReason
+  details   String?
+  
+  status    ReportStatus @default(PENDING)
+  
+  createdAt DateTime     @default(now()) @map("created_at")
+  
+  note      Note         @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  reporter  User         @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+  
+  @@map("reports")
+}
+
+enum ReportReason {
+  COPYRIGHT
+  INAPPROPRIATE
+  SPAM
+  LOW_QUALITY
+  OTHER
+}
+
+enum ReportStatus {
+  PENDING
+  RESOLVED
+  DISMISSED
+}
+
+// ─────────────────────────────────────────
+// 6. DOWNLOADS & TRANSACTIONS
+// ─────────────────────────────────────────
+
+model Download {
+  id         String   @id @default(uuid())
+  noteId     String   @map("note_id")
+  userId     String   @map("user_id")
+  
+  createdAt  DateTime @default(now()) @map("created_at")
+  
+  note       Note     @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("downloads")
+}
+
+model Transaction {
+  id            String            @id @default(uuid())
+  userId        String            @map("user_id")
+  
+  type          TransactionType
+  amount        Decimal           @db.Decimal(10, 2)
+  
+  status        TransactionStatus @default(PENDING)
+  
+  provider      String?           // "paytr", "iyzico"
+  providerTxId  String?           @map("provider_tx_id")
+  
+  metadata      Json?
+  
+  createdAt     DateTime          @default(now()) @map("created_at")
+  
+  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("transactions")
+}
+
+enum TransactionType {
+  SUBSCRIPTION
+  NOTE_PURCHASE
+  WITHDRAWAL
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
