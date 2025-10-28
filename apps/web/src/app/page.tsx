@@ -107,16 +107,18 @@ export default function HomePage() {
                 Ders notlarını paylaş, kazanç sağla, bilgini genişlet.
               </p>
 
-              {/* Search Bar */}
+              {/* Search Bar - Enhanced */}
               <form onSubmit={handleSearch} className="mb-12">
-                <div className="relative">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <div className="relative group">
+                  <div className="absolute left-5 top-1/2 -translate-y-1/2 flex items-center">
+                    <Search className="w-5 h-5 text-gray-500 group-hover:text-orange-600 transition-colors duration-200" />
+                  </div>
                   <input
                     type="text"
                     placeholder="Ders, konu veya okul ara..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-12 pr-4 py-4 rounded-full border-2 border-orange-300 focus:border-orange-500 focus:outline-none shadow-sm text-gray-900 text-lg"
+                    className="w-full pl-14 pr-6 py-4 rounded-full border-2 border-gray-300 hover:border-orange-400 focus:border-orange-500 focus:outline-none focus:ring-4 focus:ring-orange-100 shadow-md hover:shadow-lg transition-all duration-200 text-gray-900 text-lg placeholder-gray-500 font-medium"
                   />
                 </div>
               </form>
@@ -148,7 +150,7 @@ export default function HomePage() {
               </div>
             </motion.div>
 
-            {/* Right GIF */}
+            {/* Right Hero Visual - Enhanced */}
             <motion.div
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0, y: [0, -8, 0] }}
@@ -159,7 +161,7 @@ export default function HomePage() {
               }}
               className="relative"
             >
-              <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-2xl">
+              <div className="relative w-full aspect-video rounded-3xl overflow-hidden shadow-xl border-none transform hover:scale-105 transition-transform duration-300">
                 <video
                   autoPlay
                   loop

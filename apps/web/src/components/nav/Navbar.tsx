@@ -52,49 +52,54 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 backdrop-blur-md bg-white/80 border-b border-black/5">
-      <nav className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2">
+    <header className="sticky top-0 z-50 backdrop-blur-md bg-white/80 border-b border-black/5 shadow-sm">
+      <nav className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        {/* Sol: Logo + KARGANOT text */}
+        <Link href="/" className="flex items-center gap-2.5">
           <Image
             src="/image/logo.png"
-            alt="KARGANOT"
-            width={40}
-            height={40}
+            alt="KARGANOT Logo"
+            width={44}
+            height={44}
             priority
-            className="transition-transform hover:scale-110"
+            className="transition-transform hover:scale-105 duration-200"
           />
-          <span className="text-xl font-bold text-gray-900 hover:text-orange-600 transition-colors hidden sm:block">
+          <span className="text-xl font-bold text-gray-900 hover:text-orange-600 transition-colors duration-200 hidden sm:block">
             KARGANOT
           </span>
         </Link>
-        <ul className="hidden md:flex items-center gap-2 relative">
+
+        {/* Orta: Desktop menü (hidden on mobile) */}
+        <ul className="hidden md:flex items-center gap-1 relative">
           {items.map((it) => {
             const active = it.match.test(pathname);
             return (
               <li key={it.href} className="relative">
                 <Link
                   href={it.href}
-                  className={`group flex items-center gap-2 px-3 py-2 rounded-lg transition-all
+                  className={`group flex items-center gap-2 px-3.5 py-2 rounded-lg transition-all duration-200
                     ${
                       active
-                        ? "text-orange-600 font-semibold"
-                        : "text-gray-700 hover:text-orange-600"
+                        ? "text-orange-600 font-semibold bg-orange-50"
+                        : "text-gray-700 hover:text-orange-600 hover:bg-orange-50/50"
                     }`}
                   prefetch
                 >
                   <Image
                     src={it.icon}
                     alt=""
-                    width={20}
-                    height={20}
-                    className="shrink-0 transition-transform group-hover:scale-110"
+                    width={18}
+                    height={18}
+                    className="shrink-0 transition-transform group-hover:scale-110 duration-200 translate-y-[1px]"
                   />
-                  <span className="text-sm">{it.label}</span>
+                  <span className="text-sm font-medium">{it.label}</span>
                 </Link>
+
+                {/* Active indicator - orange gradient underline */}
                 {active && (
                   <motion.span
                     layoutId="activeTab"
-                    className="absolute left-2 right-2 -bottom-1 h-[3px] rounded-full bg-gradient-to-r from-orange-500 to-amber-400"
+                    className="absolute left-2 right-2 -bottom-0.5 h-[3px] rounded-full bg-gradient-to-r from-orange-500 to-amber-400 shadow-sm"
                     transition={{
                       type: "spring",
                       stiffness: 500,
@@ -106,12 +111,17 @@ export default function Navbar() {
             );
           })}
         </ul>
-        <div className="flex items-center gap-2">
+
+        {/* Sağ: Profil/Giriş + Mobile hamburger */}
+        <div className="flex items-center gap-3">
+          {/* Desktop: ProfileMenu veya Giriş/Üye Ol */}
           <div className="hidden md:block">
             <ProfileMenu />
           </div>
+
+          {/* Mobile: Hamburger button */}
           <button
-            className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
             onClick={() => setMobileOpen(true)}
             aria-label="Menüyü aç"
           >
@@ -128,6 +138,8 @@ export default function Navbar() {
           </button>
         </div>
       </nav>
+
+      {/* Mobile sheet menu (sağdan açılır) */}
       <MobileMenu
         open={mobileOpen}
         onClose={() => setMobileOpen(false)}
@@ -137,4 +149,4 @@ export default function Navbar() {
   );
 }
 
-// KARGANOT Navbar Sheet & Icons Fix - by Onur & Copilot
+// KARGANOT UI/UX Enhancement - by Onur & Copilot

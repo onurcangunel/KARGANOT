@@ -7,21 +7,21 @@ import MainLayout from '@/components/layouts/MainLayout';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'KARGA NOT - Üniversite Not Paylaşım Platformu',
+  title: 'KargaNot | Öğrenciden Öğrenciye Bilgi Platformu',
   description: 'Türkiye\'nin en güvenilir ders notu paylaşım platformu. Notlarını paylaş, para kazan!',
-  keywords: 'ders notu, üniversite, not paylaşımı, öğrenci, karga not',
-  authors: [{ name: 'KARGA NOT' }],
+  keywords: 'ders notu, üniversite, not paylaşımı, öğrenci, karganot',
+  authors: [{ name: 'Onur' }],
   openGraph: {
-    title: 'KARGA NOT - Üniversite Not Paylaşım Platformu',
+    title: 'KargaNot - Üniversite Not Paylaşım Platformu',
     description: 'Notlarını paylaş, para kazan!',
     url: 'https://karganot.com',
-    siteName: 'KARGA NOT',
+    siteName: 'KargaNot',
     locale: 'tr_TR',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'KARGA NOT',
+    title: 'KargaNot',
     description: 'Notlarını paylaş, para kazan!',
   },
 };
