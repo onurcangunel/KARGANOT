@@ -20,7 +20,7 @@ import {
   ThumbsUp
 } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
-import { tr } from 'date-fns/locale'
+import { tr } from 'date-fns/locale/tr'
 
 // Mock data - gerçek API'den gelecek
 const MOCK_DOCUMENT = {

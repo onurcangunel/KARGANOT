@@ -1,8 +1,7 @@
-// This is your Prisma schema file for KARGA NOT
-// Authentication + Note sharing platform
-
+// KARGANOT MVP - SQLite Compatible Schema
 generator client {
   provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -10,53 +9,39 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ==========================================
-// AUTHENTICATION MODELS (NextAuth)
-// ==========================================
-
+// USER & AUTHENTICATION
 model User {
   id            String    @id @default(cuid())
   email         String    @unique
   emailVerified DateTime?
-  name          String?
-  password      String    // bcrypt hashed
-  image         String?   // profile image URL
-  role          Role      @default(STUDENT)
-  verified      Boolean   @default(false)
-  
-  // Academic Info
-  university    String?
-  faculty       String?
-  department    String?
-  studentId     String?
-  gradeLevel    Int?
-  
-  // Gamification
-  points        Int       @default(0)
-  level         Int       @default(1)
-  badges        String?   @default("[]") // JSON string
-  
-  // Financial
-  balance       Float     @default(0)
-  credits       Int       @default(10) // Welcome bonus
-  
-  // Timestamps
+  passwordHash  String?
+  name          String
+  image         String?
+  universityId  String?
+  university    University? @relation(fields: [universityId], references: [id])
+  departmentId  String?
+  department    Department? @relation(fields: [departmentId], references: [id])
+  role          String    @default("USER")
+  status        String    @default("ACTIVE")
+  plan          String    @default("FREE")
+  planRenewsAt  DateTime?
+  monthlyDownloadQuota Int @default(3)
+  monthlyDownloadUsed  Int @default(0)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-  lastLogin     DateTime?
-  
-  // Relations
+  lastLoginAt   DateTime?
   accounts      Account[]
   sessions      Session[]
-  notes         Note[]
-  purchases     Purchase[]
-  reviews       Review[]
-  documents     Document[]  // 🆕 Yeni not sistemi
-  
+  notes         Note[]         @relation("NoteUploader")
+  downloads     Download[]
+  ratings       Rating[]
+  reports       Report[]
+  transactions  Transaction[]
+  auditLogs     AuditLog[]
+  @@index([email])
   @@map("users")
 }
 
-// NextAuth Account model (for OAuth providers)
 model Account {
   id                String  @id @default(cuid())
   userId            String
@@ -70,363 +55,200 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
-
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
   @@unique([provider, providerAccountId])
   @@map("accounts")
 }
 
-// NextAuth Session model
 model Session {
   id           String   @id @default(cuid())
   sessionToken String   @unique
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
   @@map("sessions")
 }
 
-// NextAuth VerificationToken model (for email verification)
 model VerificationToken {
   identifier String
   token      String   @unique
   expires    DateTime
-
   @@unique([identifier, token])
   @@map("verification_tokens")
 }
 
-// ==========================================
-// NOTE SHARING MODELS
-// ==========================================
-
-model Note {
-  id            String     @id @default(cuid())
-  title         String
-  description   String?
-  price         Float
-  fileKey       String     // S3 key or local path
-  fileName      String
-  fileSize      Int
-  fileType      String
-  thumbnailKey  String?
-  pageCount     Int?
-  status        NoteStatus @default(PENDING)
-  viewCount     Int        @default(0)
-  downloadCount Int        @default(0)
-  
-  // Academic Info
-  university    String
-  faculty       String?
-  department    String?
-  courseName    String?
-  courseCode    String?
-  semester      String?    // Güz, Bahar
-  year          Int?
-  
-  // Seller
-  sellerId      String
-  seller        User       @relation(fields: [sellerId], references: [id], onDelete: Cascade)
-  
-  // Timestamps
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
-  
-  // Relations
-  purchases     Purchase[]
-  reviews       Review[]
-  
-  @@index([status])
-  @@index([university])
-  @@index([sellerId])
-  @@map("notes")
-}
-
-model Purchase {
-  id          String   @id @default(cuid())
-  userId      String
-  noteId      String
-  price       Float
-  paymentMethod String // credit, stripe, iyzico
-  status      PurchaseStatus @default(PENDING)
-  createdAt   DateTime @default(now())
-  
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  note        Note     @relation(fields: [noteId], references: [id], onDelete: Cascade)
-  
-  @@unique([userId, noteId])
-  @@map("purchases")
-}
-
-model Review {
-  id        String   @id @default(cuid())
-  rating    Int      // 1-5
-  comment   String?
-  userId    String
-  noteId    String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  note      Note     @relation(fields: [noteId], references: [id], onDelete: Cascade)
-  
-  @@unique([userId, noteId])
-  @@map("reviews")
-}
-
-// ==========================================
-// ENUMS
-// ==========================================
-
-enum Role {
-  STUDENT
-  CONTRIBUTOR
-  MODERATOR
-  ADMIN
-}
-
-enum NoteStatus {
-  PENDING
-  APPROVED
-  REJECTED
-}
-
-enum PurchaseStatus {
-  PENDING
-  COMPLETED
-  FAILED
-  REFUNDED
-}
-
-// ==========================================
-// 🆕 DOCUMENT UPLOAD SYSTEM (COURSEHERO STYLE)
-// ==========================================
-
-model Document {
-  id              String    @id @default(cuid())
-  userId          String
-  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  // File Info
-  title           String
-  description     String?
-  fileName        String
-  fileUrl         String    // /uploads/xxx.pdf or S3 URL
-  fileSize        Int       // bytes
-  fileType        String    // pdf, docx, pptx, jpg, png
-  thumbnailUrl    String?   // /thumbnails/xxx.jpg
-  pageCount       Int?
-  
-  // Academic Info
-  universityId    String
-  university      University @relation(fields: [universityId], references: [id])
-  universityUnitId String?   // 🆕 Fakülte, MYO, Enstitü
-  universityUnit  UniversityUnit? @relation(fields: [universityUnitId], references: [id])
-  facultyId       String?
-  faculty         Faculty?   @relation(fields: [facultyId], references: [id])
-  departmentId    String?
-  department      Department? @relation(fields: [departmentId], references: [id])
-  courseId        String?
-  course          Course?    @relation(fields: [courseId], references: [id])
-  
-  // Metadata
-  documentType    DocumentType @default(DERS_NOTU)
-  semester        String?    // guz, bahar, yaz
-  academicYear    String?    // 2024-2025
-  tags            String?    @default("[]") // JSON array
-  language        String     @default("tr")
-  
-  // Status & Moderation
-  status          DocumentStatus @default(PENDING)
-  rejectionReason String?
-  moderatedAt     DateTime?
-  moderatedBy     String?
-  
-  // Engagement Metrics
-  viewCount       Int        @default(0)
-  downloadCount   Int        @default(0)
-  likeCount       Int        @default(0)
-  ratingAvg       Float?
-  ratingCount     Int        @default(0)
-  
-  // Timestamps
-  createdAt       DateTime   @default(now())
-  updatedAt       DateTime   @updatedAt
-  
-  // Performance indexes
-  @@index([userId])
-  @@index([universityId])
-  @@index([universityUnitId])
-  @@index([facultyId])
-  @@index([departmentId])
-  @@index([courseId])
-  @@index([status])
-  @@index([documentType])
-  @@index([createdAt])
-  @@map("documents")
-}
-
+// TAXONOMY
 model University {
-  id          String       @id @default(cuid())
-  name        String       @unique
-  slug        String       @unique
-  city        String?
-  type        String?      // Devlet, Vakıf
-  logo        String?
-  website     String?
-  
-  // 🆕 YÖK ATLAS Integration
-  yokAtlasId  String?      @unique  // YÖK Atlas'tan gelen ID (hash)
-  isActive    Boolean      @default(true)
-  
-  // Relations
-  units       UniversityUnit[]  // 🆕 Fakülte, MYO, Enstitü, vb.
-  faculties   Faculty[]         // ⚠️ Geriye dönük uyumluluk (deprecated)
-  documents   Document[]
-  
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  
-  @@index([slug])
-  @@index([city])
-  @@index([yokAtlasId])
+  id         String    @id @default(cuid())
+  name       String    @unique
+  slug       String    @unique
+  city       String?
+  type       String?
+  isActive   Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  faculties  Faculty[]
+  users      User[]
+  notes      Note[]
   @@map("universities")
 }
 
-// 🆕 NEW: UniversityUnit (Fakülte, MYO, Enstitü, Yüksekokul)
-model UniversityUnit {
-  id            String       @id @default(cuid())
-  name          String       // "Yatağan Meslek Yüksekokulu", "Mühendislik Fakültesi"
-  slug          String       
-  type          UnitType     // FACULTY, VOCATIONAL_SCHOOL, INSTITUTE, vb.
-  universityId  String
-  university    University   @relation(fields: [universityId], references: [id], onDelete: Cascade)
-  
-  // 🆕 YÖK ATLAS Integration
-  yokAtlasId    String?      @unique  // YÖK Atlas'tan gelen ID
-  shortName     String?      // Kısa adı (örn: "Yatağan MYO")
-  isActive      Boolean      @default(true)
-  
-  // Relations
-  departments   Department[]
-  documents     Document[]
-  
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-  
-  @@unique([universityId, slug])
-  @@index([universityId])
-  @@index([type])
-  @@index([yokAtlasId])
-  @@map("university_units")
-}
-
-// ⚠️ DEPRECATED: Geriye dönük uyumluluk için tutuldu
 model Faculty {
-  id            String       @id @default(cuid())
-  name          String
-  slug          String
-  universityId  String
-  university    University   @relation(fields: [universityId], references: [id], onDelete: Cascade)
-  
-  // Relations
-  departments   Department[]
-  documents     Document[]
-  
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-  
+  id           String     @id @default(cuid())
+  universityId String
+  university   University @relation(fields: [universityId], references: [id], onDelete: Cascade)
+  name         String
+  slug         String
+  isActive     Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  departments  Department[]
   @@unique([universityId, slug])
-  @@index([universityId])
   @@map("faculties")
 }
 
 model Department {
-  id                String     @id @default(cuid())
-  name              String
-  slug              String
-  
-  // 🆕 İki şekilde de ilişki kurulabilir (eski Faculty veya yeni UniversityUnit)
-  facultyId         String?    // ⚠️ Eski sistem (deprecated)
-  faculty           Faculty?   @relation(fields: [facultyId], references: [id], onDelete: Cascade)
-  
-  universityUnitId  String?    // 🆕 Yeni sistem (Faculty veya MYO)
-  universityUnit    UniversityUnit? @relation(fields: [universityUnitId], references: [id], onDelete: Cascade)
-  
-  // 🆕 YÖK ATLAS Integration
-  yokAtlasId        String?    @unique  // YÖK Atlas program ID
-  code              String?    // Bölüm kodu (örn: "102210277")
-  scoreType         String?    // SAY, EA, SÖZ, DİL, TYT
-  quota             Int?       // Kontenjan
-  isActive          Boolean    @default(true)
-  
-  // Relations
+  id         String   @id @default(cuid())
+  facultyId  String
+  faculty    Faculty  @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+  name       String
+  slug       String
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
   courses    Course[]
-  documents  Document[]
-  
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-  
+  users      User[]
   @@unique([facultyId, slug])
-  @@unique([universityUnitId, slug])
-  @@index([facultyId])
-  @@index([universityUnitId])
-  @@index([yokAtlasId])
-  @@index([scoreType])
   @@map("departments")
 }
 
 model Course {
   id           String     @id @default(cuid())
-  name         String
-  code         String?    // MAT101, BIL201
-  slug         String
-  credits      Int?
   departmentId String
   department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
-  
-  // Relations
-  documents    Document[]
-  
+  name         String
+  code         String?
+  slug         String
+  semester     String?
+  isActive     Boolean    @default(true)
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
-  
+  notes        Note[]
   @@unique([departmentId, slug])
-  @@index([departmentId])
   @@map("courses")
 }
 
-// ==========================================
-// 🆕 NEW ENUMS
-// ==========================================
-
-enum UnitType {
-  FACULTY              // Fakülte (Mühendislik Fakültesi)
-  VOCATIONAL_SCHOOL    // Meslek Yüksekokulu (Yatağan MYO)
-  GRADUATE_SCHOOL      // Enstitü (Fen Bilimleri Enstitüsü)
-  COLLEGE              // Yüksekokul (Beden Eğitimi ve Spor Yüksekokulu)
-  CONSERVATORY         // Konservatuar (Devlet Konservatuarı)
-  RESEARCH_CENTER      // Araştırma Merkezi
-  APPLICATION_CENTER   // Uygulama Merkezi
-  OTHER                // Diğer
+// NOTES
+model Note {
+  id              String     @id @default(cuid())
+  courseId        String
+  course          Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  uploaderId      String
+  uploader        User       @relation("NoteUploader", fields: [uploaderId], references: [id], onDelete: Cascade)
+  universityId    String
+  university      University @relation(fields: [universityId], references: [id])
+  title           String
+  description     String?
+  tags            String     @default("[]")
+  fileKey         String
+  fileExt         String
+  pages           Int?
+  sizeBytes       Int
+  previewKey      String?
+  ocrTextIndexed  Boolean    @default(false)
+  downloads       Int        @default(0)
+  views           Int        @default(0)
+  avgRating       Float?
+  ratingCount     Int        @default(0)
+  status          String     @default("PENDING")
+  moderationReason String?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  ratings         Rating[]
+  reports         Report[]
+  downloadRecords Download[]
+  @@index([courseId])
+  @@index([uploaderId])
+  @@index([status])
+  @@map("notes")
 }
 
-enum DocumentType {
-  DERS_NOTU    // Ders Notları
-  OZET         // Özet/Summary
-  SLAYT        // Sunum/Slides
-  ODEV         // Ödev/Assignment
-  SINAV        // Sınav/Exam
-  KILAVUZ      // Kılavuz/Guide
-  PROJE        // Proje/Project
-  LAB          // Lab Raporu
+// ENGAGEMENT
+model Rating {
+  id        String   @id @default(cuid())
+  noteId    String
+  note      Note     @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+  @@unique([noteId, userId])
+  @@map("ratings")
 }
 
-enum DocumentStatus {
-  PENDING      // Moderasyon bekliyor
-  APPROVED     // Onaylandı
-  REJECTED     // Reddedildi
-  DRAFT        // Taslak (kullanıcı kaydetmiş ama yüklememiş)
+model Report {
+  id         String       @id @default(cuid())
+  noteId     String
+  note       Note         @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  reporterId String
+  reporter   User         @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+  type       String
+  detail     String
+  status     String       @default("OPEN")
+  createdAt  DateTime     @default(now())
+  resolvedAt DateTime?
+  resolverId String?
+  @@map("reports")
+}
+
+model Download {
+  id        String   @id @default(cuid())
+  noteId    String
+  note      Note     @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ipHash    String
+  userAgent String?
+  createdAt DateTime @default(now())
+  @@map("downloads")
+}
+
+// PAYMENTS
+model Transaction {
+  id          String            @id @default(cuid())
+  userId      String
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider    String
+  type        String
+  amount      Float
+  currency    String            @default("TRY")
+  status      String
+  providerRef String?
+  createdAt   DateTime          @default(now())
+  renewedAt   DateTime?
+  expiresAt   DateTime?
+  @@map("transactions")
+}
+
+model Webhook {
+  id        String   @id @default(cuid())
+  provider  String
+  payload   String
+  verified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  @@map("webhooks")
+}
+
+// AUDIT
+model AuditLog {
+  id          String   @id @default(cuid())
+  actorUserId String?
+  actor       User?    @relation(fields: [actorUserId], references: [id])
+  action      String
+  entity      String
+  entityId    String
+  diff        String?
+  createdAt   DateTime @default(now())
+  @@map("audit_logs")
 }

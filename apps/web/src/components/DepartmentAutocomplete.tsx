@@ -35,6 +35,7 @@ export function DepartmentAutocomplete({
     if (value && facultyName) {
       onChange('');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [facultyName]);
 
   const filteredDepartments = departments?.filter(d =>

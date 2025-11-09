@@ -1,3 +1,2 @@
-import { GET, POST } from '@/lib/auth';
-
-export { GET, POST };
+// Backup file (disabled). Intentionally empty to avoid build imports.
+export {};

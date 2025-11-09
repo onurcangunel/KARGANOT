@@ -358,7 +358,7 @@ export default function ProfileDetailPage() {
             <div className="bg-orange-50 rounded-xl p-6">
               <h3 className="font-bold text-gray-900 mb-3">Komisyon Oranları</h3>
               <p className="text-gray-700 mb-2">
-                Her satıştan <strong>%70</strong> size, <strong>%30</strong> platforma aittir.
+                Satışlardan elde edilen kazanç, güncel komisyon oranları esas alınarak adil şekilde paylaşılır. Oranlar ödeme adımında açıkça gösterilir.
               </p>
               <p className="text-sm text-gray-600">
                 Minimum çekim tutarı: <strong>50 ₺</strong>

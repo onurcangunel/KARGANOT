@@ -7,11 +7,20 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // Global prefix
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix('api/v1');
 
   // CORS
+  // Production CORS origins
+  const allowedOrigins = [
+    process.env.FRONTEND_URL || 'http://localhost:3000',
+    'https://karganot.com',
+    'https://www.karganot.com',
+  ];
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: (origin, cb) => {
+      if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
+      return cb(new Error('Not allowed by CORS'));
+    },
     credentials: true,
   });
 
@@ -46,7 +55,7 @@ async function bootstrap() {
   console.log(`
     🚀 KARGA NOT API is running!
     
-    📝 API: http://localhost:${port}/api
+    📝 API: http://localhost:${port}/api/v1
     📚 Docs: http://localhost:${port}/api/docs
     🗄️  Database: ${process.env.DATABASE_URL ? '✅ Connected' : '❌ Not configured'}
   `);

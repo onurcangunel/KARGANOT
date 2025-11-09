@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useForm, Controller } from 'react-hook-form'
+import { useForm, Controller, type Resolver, type SubmitHandler } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import axios from 'axios'
+import api from '@/utils/api'
 import toast, { Toaster } from 'react-hot-toast'
 import { Upload as UploadIcon, AlertCircle } from 'lucide-react'
 
@@ -55,7 +55,7 @@ export default function UploadPage() {
     setValue,
     formState: { errors, isSubmitting },
   } = useForm<UploadFormData>({
-    resolver: zodResolver(uploadFormSchema),
+    resolver: zodResolver(uploadFormSchema) as Resolver<UploadFormData>,
     defaultValues: {
       title: '',
       description: '',
@@ -162,7 +162,7 @@ export default function UploadPage() {
   const fetchFaculties = async (universityId: string) => {
     setIsLoadingFaculties(true)
     try {
-      const response = await axios.get(`/api/universities/${universityId}/faculties`)
+  const response = await api.get(`/v1/universities/${universityId}/faculties`)
       setFaculties(response.data.faculties || [])
     } catch (error) {
       console.error('Failed to fetch faculties:', error)
@@ -177,7 +177,7 @@ export default function UploadPage() {
   const fetchDepartments = async (facultyId: string) => {
     setIsLoadingDepartments(true)
     try {
-      const response = await axios.get(`/api/faculties/${facultyId}/departments`)
+  const response = await api.get(`/v1/faculties/${facultyId}/departments`)
       setDepartments(response.data.departments || [])
     } catch (error) {
       console.error('Failed to fetch departments:', error)
@@ -192,7 +192,7 @@ export default function UploadPage() {
   const fetchCourses = async (departmentId: string) => {
     setIsLoadingCourses(true)
     try {
-      const response = await axios.get(`/api/departments/${departmentId}/courses`)
+  const response = await api.get(`/v1/departments/${departmentId}/courses`)
       setCourses(response.data.courses || [])
     } catch (error) {
       console.error('Failed to fetch courses:', error)
@@ -204,7 +204,7 @@ export default function UploadPage() {
   }
 
   // Handle form submission
-  const onSubmit = async (data: UploadFormData) => {
+  const onSubmit: SubmitHandler<UploadFormData> = async (data) => {
     if (!data.file) {
       toast.error('Lütfen bir dosya seçin')
       return
@@ -234,7 +234,7 @@ export default function UploadPage() {
     if (data.professor) formData.append('professor', data.professor)
 
     try {
-      const response = await axios.post('/api/documents/upload', formData, {
+  const response = await api.post('/documents/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

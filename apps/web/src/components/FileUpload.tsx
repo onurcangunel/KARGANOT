@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useState } from 'react'
-import { useDropzone } from 'react-dropzone'
+import { useDropzone, type DropzoneOptions, type FileRejection, type DropEvent } from 'react-dropzone'
 import { Upload, File, X, CheckCircle, AlertCircle, Loader2 } from 'lucide-react'
 
 // File validation constants
@@ -59,8 +59,8 @@ export function FileUpload({
   const [error, setError] = useState<string | null>(null)
 
   // Handle file selection
-  const onDrop = useCallback(
-    (acceptedFiles: File[], rejectedFiles: any[]) => {
+  const onDrop = useCallback<NonNullable<DropzoneOptions['onDrop']>>( 
+    <T extends File>(acceptedFiles: T[], rejectedFiles: FileRejection[], _event: DropEvent) => {
       // Clear previous errors
       setError(null)
 
@@ -105,7 +105,10 @@ export function FileUpload({
     maxSize,
     multiple,
     disabled: disabled || uploadStatus === 'uploading',
-  })
+    onDragEnter: () => {},
+    onDragOver: () => {},
+    onDragLeave: () => {},
+  } as DropzoneOptions)
 
   // Handle remove file
   const handleRemove = () => {
@@ -251,7 +254,7 @@ export function FileUpload({
           ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
         `}
       >
-        <input {...getInputProps()} />
+  <input {...getInputProps({})} />
         
         {/* Icon */}
         <div className="mx-auto w-12 h-12 mb-4 text-gray-400">

@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { ThumbsUp, ThumbsDown, MessageCircle, Flag, MoreVertical } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
-import { tr } from 'date-fns/locale'
+import { tr } from 'date-fns/locale/tr'
 import {
   DropdownMenu,
   DropdownMenuContent,

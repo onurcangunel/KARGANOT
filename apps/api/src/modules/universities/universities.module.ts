@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
-import { UniversitiesController, FacultiesController } from './universities.controller';
+import { UniversitiesController, FacultiesController, UniversitelerTrController, FakultelerTrController } from './universities.controller';
 import { UniversitiesService } from './universities.service';
 import { YokAtlasController } from './yok-atlas.controller';
 import { YokAtlasService } from './yok-atlas.service';
 
 @Module({
-  controllers: [UniversitiesController, FacultiesController, YokAtlasController],
+  controllers: [UniversitiesController, FacultiesController, YokAtlasController, UniversitelerTrController, FakultelerTrController],
   providers: [UniversitiesService, YokAtlasService],
   exports: [UniversitiesService, YokAtlasService],
 })

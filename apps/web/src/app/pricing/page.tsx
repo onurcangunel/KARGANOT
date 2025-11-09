@@ -1,3 +1,4 @@
+'use client';
 // KARGANOT Frontend Perfection Update - by Onur & Copilot
 'use client';
 

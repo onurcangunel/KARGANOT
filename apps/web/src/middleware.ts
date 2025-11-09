@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { auth } from '@/lib/auth';
 
 /**
  * MIDDLEWARE - PROTECTED ROUTES
@@ -27,42 +26,9 @@ const publicRoutes = [
   '/register',
 ];
 
-export async function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl;
-
-  // Get session
-  const session = await auth();
-
-  // Check if route is protected
-  const isProtectedRoute = protectedRoutes.some((route) =>
-    pathname.startsWith(route)
-  );
-
-  const isAdminRoute = adminRoutes.some((route) =>
-    pathname.startsWith(route)
-  );
-
-  const isPublicRoute = publicRoutes.some((route) =>
-    pathname.startsWith(route)
-  );
-
-  // Redirect to login if accessing protected route without auth
-  if (isProtectedRoute && !session) {
-    const url = new URL('/login', req.url);
-    url.searchParams.set('callbackUrl', pathname);
-    return NextResponse.redirect(url);
-  }
-
-  // Redirect to dashboard if accessing public route with auth
-  if (isPublicRoute && session) {
-    return NextResponse.redirect(new URL('/dashboard', req.url));
-  }
-
-  // Admin route check
-  if (isAdminRoute && (!session || session.user.role !== 'ADMIN')) {
-    return NextResponse.redirect(new URL('/dashboard', req.url));
-  }
-
+export async function middleware(_req: NextRequest) {
+  // JWT akışı client tarafında yönetildiğinden burada şimdilik yönlendirme yapmıyoruz.
+  // İleride Authorization header kontrolü eklenebilir.
   return NextResponse.next();
 }
 

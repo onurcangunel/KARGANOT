@@ -1,0 +1,17 @@
+FROM node:20-alpine AS builder
+WORKDIR /usr/src/app
+COPY apps/api/package*.json ./
+COPY apps/api/tsconfig*.json ./
+COPY apps/api/ ./apps/api/
+RUN cd apps/api && npm ci --production=false && npx prisma generate || true
+RUN cd apps/api && npm run build
+
+FROM node:20-alpine AS runner
+WORKDIR /usr/src/app
+ENV NODE_ENV=production
+COPY --from=builder /usr/src/app/apps/api/package*.json ./
+COPY --from=builder /usr/src/app/apps/api/node_modules ./apps/api/node_modules
+COPY --from=builder /usr/src/app/apps/api/dist ./apps/api/dist
+COPY --from=builder /usr/src/app/apps/api/prisma ./apps/api/prisma
+EXPOSE 3000
+CMD ["node", "apps/api/dist/src/main.js"]

@@ -377,7 +377,7 @@ export default function UploadPage() {
             <li>✓ Yüklediğiniz notlar moderatör onayından geçecektir</li>
             <li>✓ Telif hakkı ihlali yapan içerikler kabul edilmez</li>
             <li>✓ Spam veya düşük kaliteli içerikler reddedilir</li>
-            <li>✓ Her satıştan %70 kazanç sizin, %30 platforma aittir</li>
+            <li>✓ Kazanç paylaşımı komisyon oranları ödeme adımında şeffaf biçimde sunulur</li>
             <li>✓ Minimum çekim tutarı 50 ₺'dir</li>
           </ul>
         </div>

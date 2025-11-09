@@ -14,11 +14,12 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { Menu, X, Search, Upload, User, LogOut, Settings, BookOpen, Heart } from 'lucide-react'
 import Logo from './Logo'
+import { useAuth } from '@/hooks/useAuth'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const isLoggedIn = false // TODO: Get from auth context
+  const { user, isAuthenticated, logout } = useAuth()
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -89,15 +90,15 @@ export default function Header() {
               </Link>
             </Button>
 
-            {isLoggedIn ? (
+            {isAuthenticated ? (
               /* Logged In User Menu */
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                     <Avatar>
-                      <AvatarImage src="/avatar.jpg" alt="User" />
+                      <AvatarImage src="/avatar.jpg" alt={user?.name || 'User'} />
                       <AvatarFallback className="bg-primary text-white">
-                        U
+                        {(user?.name?.[0] || 'U').toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                   </Button>
@@ -129,7 +130,7 @@ export default function Header() {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-red-600 flex items-center gap-2">
+                  <DropdownMenuItem className="text-red-600 flex items-center gap-2" onClick={logout}>
                     <LogOut className="w-4 h-4" />
                     Çıkış Yap
                   </DropdownMenuItem>
@@ -213,7 +214,7 @@ export default function Header() {
                 Not Yükle
               </Link>
 
-              {isLoggedIn ? (
+              {isAuthenticated ? (
                 <>
                   <Link
                     href="/profile"
@@ -247,7 +248,7 @@ export default function Header() {
                     <Settings className="w-5 h-5" />
                     Ayarlar
                   </Link>
-                  <button className="flex items-center gap-2 text-red-600 hover:text-red-700 py-2 text-left">
+                  <button className="flex items-center gap-2 text-red-600 hover:text-red-700 py-2 text-left" onClick={logout}>
                     <LogOut className="w-5 h-5" />
                     Çıkış Yap
                   </button>

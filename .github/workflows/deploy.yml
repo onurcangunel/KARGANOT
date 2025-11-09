@@ -1,0 +1,17 @@
+name: Deploy KARGANOT
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Docker Compose Deploy
+        run: |
+          docker compose -f docker-compose.prod.yml down || true
+          docker compose -f docker-compose.prod.yml up -d --build

@@ -6,7 +6,7 @@ import { Eye, Star, Download, FileText } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
-import { tr } from 'date-fns/locale'
+import { tr } from 'date-fns/locale/tr'
 
 interface DocumentCardProps {
   id: string

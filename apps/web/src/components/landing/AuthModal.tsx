@@ -212,7 +212,7 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
 
                 <button
                   type="submit"
-                  className="w-full mt-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold rounded-lg hover:from-orange-600 hover:to-orange-700 transform hover:scale-[1.02] transition-all duration-200 shadow-md hover:shadow-lg"
+                  className="w-full mt-6 py-3 btn-premium rounded-lg transform hover:scale-[1.02] transition-all duration-200 shadow-md hover:shadow-lg"
                 >
                   {mode === 'login' ? 'Giriş Yap' : 'Hesap Oluştur'}
                 </button>

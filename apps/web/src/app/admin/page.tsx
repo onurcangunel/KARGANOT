@@ -47,6 +47,7 @@ export default function AdminModerationPage() {
   // Fetch pending notes
   useEffect(() => {
     fetchPendingNotes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchPendingNotes = async () => {

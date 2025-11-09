@@ -135,7 +135,7 @@ export default function PopularNotes() {
                   <div className="text-2xl font-bold text-orange-600">
                     ₺{note.price}
                   </div>
-                  <button className="px-5 py-2.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg font-medium hover:from-orange-600 hover:to-orange-700 transform hover:scale-105 transition-all duration-200 shadow-md hover:shadow-lg">
+                    <button className="px-5 py-2.5 rounded-full btn-premium font-medium transform hover:scale-105 transition-all duration-200 shadow-md hover:shadow-lg">
                     İndir
                   </button>
                 </div>

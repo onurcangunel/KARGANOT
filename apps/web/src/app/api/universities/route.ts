@@ -37,11 +37,11 @@ export async function GET(request: NextRequest) {
         slug: true,
         city: true,
         type: true,
-        logo: true,
+        // logo: true, // not in schema
         _count: {
           select: {
             faculties: true,
-            documents: true,
+            // documents: true, // not in schema
           },
         },
       },

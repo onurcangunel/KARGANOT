@@ -52,7 +52,7 @@ async function main() {
   const istUni = universities[0];
   
   const ceDept = await prisma.department.upsert({
-    where: { universityId_code: { universityId: istUni.id, code: 'CE' } },
+    where: { universityId_name: { universityId: istUni.id, name: 'Bilgisayar Mühendisliği' } },
     update: {},
     create: {
       name: 'Bilgisayar Mühendisliği',
@@ -62,7 +62,7 @@ async function main() {
   });
 
   const eeDept = await prisma.department.upsert({
-    where: { universityId_code: { universityId: istUni.id, code: 'EE' } },
+    where: { universityId_name: { universityId: istUni.id, name: 'Elektrik-Elektronik Mühendisliği' } },
     update: {},
     create: {
       name: 'Elektrik-Elektronik Mühendisliği',

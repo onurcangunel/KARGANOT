@@ -18,7 +18,7 @@ import RatingBar10 from '@/components/RatingBar10';
 import CommentModeration from '@/components/CommentModeration';
 
 export default function DocumentDetailPage() {
-  const params = useParams();
+  const params = useParams() as { id: string };
   const router = useRouter();
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 

@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://karganot.com
+
+# Sitemaps
+Sitemap: https://karganot.com/sitemap.xml

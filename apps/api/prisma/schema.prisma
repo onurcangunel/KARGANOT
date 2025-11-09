@@ -2,6 +2,9 @@
 
 generator client {
   provider = "prisma-client-js"
+  // Client çıktısı proje kökünde .prisma/client altına üretilir
+  // @prisma/client importları otomatik bu klasöre yönlendirilir
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {

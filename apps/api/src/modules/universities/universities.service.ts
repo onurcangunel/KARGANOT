@@ -1,6 +1,6 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { Cron, CronExpression } from '@nestjs/schedule';
+import { CronJob } from 'cron';
 import axios from 'axios';
 
 interface YokAtlasUniversity {
@@ -32,31 +32,50 @@ export class UniversitiesService implements OnModuleInit {
   private readonly logger = new Logger(UniversitiesService.name);
   private readonly pythonApiUrl = process.env.PYTHON_API_URL || 'http://localhost:8000';
   private lastSyncTime: Date | null = null;
+  private weeklyJob: CronJob | null = null;
+  private cache = new Map<string, { ts: number; data: any; ttl: number }>();
 
   constructor(private readonly prisma: PrismaService) {}
 
   async onModuleInit() {
-    // İlk başlatmada veritabanını kontrol et
-    const count = await this.prisma.university.count();
+    // İlk başlatmada veritabanını kontrol et (tablo yoksa hata yakala)
+    let count = 0;
+    try {
+      count = await this.prisma.university.count();
+    } catch (e: any) {
+      this.logger.warn('University table not ready yet, skipping count check.');
+    }
     if (count === 0) {
-      this.logger.log('No universities found. Starting initial sync...');
-      // Async çalıştır, startup'ı bloke etme
-      this.syncFromYokAtlas().catch(err => 
-        this.logger.error(`Initial sync failed: ${err.message}`)
-      );
+      this.logger.log('No universities found (or table missing). Scheduling initial sync...');
+      this.syncFromYokAtlas().catch(err => this.logger.error(`Initial sync failed: ${err.message}`));
     } else {
       this.logger.log(`Found ${count} universities in database.`);
     }
+
+    // Haftalık cron job (Her Pazar 00:00)
+    try {
+      if (!this.weeklyJob) {
+        this.weeklyJob = new CronJob('0 0 * * 0', async () => {
+          this.logger.log('🗓️ Haftalık YÖK Atlas senkronizasyonu başlatılıyor...');
+          await this.syncFromYokAtlas();
+          this.logger.log('✅ YÖK Atlas verileri başarıyla senkronize edildi.');
+        });
+        this.weeklyJob.start();
+        this.logger.log('Cron job scheduled: 0 0 * * 0');
+      }
+    } catch (e: any) {
+      this.logger.warn(`Cron scheduling failed: ${e?.message || e}`);
+    }
   }
 
-  /**
-   * Haftalık otomatik senkronizasyon (Her Pazar 03:00)
-   */
-  @Cron(CronExpression.EVERY_WEEK)
-  async handleWeeklyCron() {
-    this.logger.log('Starting weekly YÖK Atlas sync...');
-    await this.syncFromYokAtlas();
-  }
+  // /**
+  //  * Haftalık otomatik senkronizasyon (Her Pazar 00:00)
+  //  */
+  // @Cron('0 0 * * 0')
+  // async handleWeeklySync() {
+  //   this.logger.log('Starting weekly YÖK Atlas sync...');
+  //   await this.syncFromYokAtlas();
+  // }
 
   /**
    * YÖK Atlas'tan tüm verileri çek ve veritabanına kaydet
@@ -211,10 +230,21 @@ export class UniversitiesService implements OnModuleInit {
     }
   }
 
+  // Manuel tetikleme için yardımcı metot
+  async handleWeeklySync() {
+    this.logger.log('🗓️ Haftalık YÖK Atlas senkronizasyonu (manuel) başlatılıyor...');
+    await this.syncFromYokAtlas();
+    this.logger.log('✅ (manuel) YÖK Atlas verileri başarıyla senkronize edildi.');
+  }
+
   /**
    * Üniversite ara (autocomplete)
    */
-  async searchUniversities(query: string, limit = 10) {
+  async searchUniversities(query: string, limit = 15) {
+    const key = `uni:${query}:${limit}`;
+    const now = Date.now();
+    const cached = this.cache.get(key);
+    if (cached && now - cached.ts < cached.ttl) return cached.data;
     return this.prisma.university.findMany({
       where: {
         isActive: true,
@@ -231,6 +261,9 @@ export class UniversitiesService implements OnModuleInit {
       },
       take: limit,
       orderBy: { name: 'asc' },
+    }).then((data) => {
+      this.cache.set(key, { ts: now, data, ttl: 60_000 });
+      return data;
     });
   }
 
@@ -238,6 +271,10 @@ export class UniversitiesService implements OnModuleInit {
    * Fakülte ara
    */
   async searchFaculties(universityId: string, query?: string, limit = 20) {
+    const key = `fac:${universityId}:${query || ''}:${limit}`;
+    const now = Date.now();
+    const cached = this.cache.get(key);
+    if (cached && now - cached.ts < cached.ttl) return cached.data;
     return this.prisma.faculty.findMany({
       where: {
         universityId,
@@ -251,6 +288,9 @@ export class UniversitiesService implements OnModuleInit {
       },
       take: limit,
       orderBy: { name: 'asc' },
+    }).then((data) => {
+      this.cache.set(key, { ts: now, data, ttl: 60_000 });
+      return data;
     });
   }
 
@@ -261,8 +301,12 @@ export class UniversitiesService implements OnModuleInit {
     universityId?: string,
     facultyId?: string,
     query?: string,
-    limit = 50,
+  limit = 50,
   ) {
+    const key = `dep:${universityId || ''}:${facultyId || ''}:${query || ''}:${limit}`;
+    const now = Date.now();
+    const cached = this.cache.get(key);
+    if (cached && now - cached.ts < cached.ttl) return cached.data;
     return this.prisma.department.findMany({
       where: {
         isActive: true,
@@ -280,6 +324,9 @@ export class UniversitiesService implements OnModuleInit {
       },
       take: limit,
       orderBy: { name: 'asc' },
+    }).then((data) => {
+      this.cache.set(key, { ts: now, data, ttl: 60_000 });
+      return data;
     });
   }
 

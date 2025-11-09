@@ -1,0 +1,35 @@
+version: "3.8"
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.api
+    container_name: karganot-api
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DATABASE_URL=${DATABASE_URL}
+    ports:
+      - "127.0.0.1:3000:3000"
+    networks:
+      - karga_net
+
+  web:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.web
+    container_name: karganot-web
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3024
+      - NEXT_PUBLIC_API_URL=https://${DOMAIN}/api
+    ports:
+      - "127.0.0.1:3024:3024"
+    networks:
+      - karga_net
+
+networks:
+  karga_net:
+    driver: bridge

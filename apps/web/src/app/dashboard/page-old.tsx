@@ -26,7 +26,7 @@ export default function DashboardPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (question.trim()) {
-      router.push(\`/ai-chat?q=\${encodeURIComponent(question)}\`)
+  router.push(`/ai-chat?q=${encodeURIComponent(question)}`)
     }
   }
 

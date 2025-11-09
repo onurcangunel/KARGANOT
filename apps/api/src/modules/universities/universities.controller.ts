@@ -108,3 +108,44 @@ export class DepartmentsController {
     return { data };
   }
 }
+
+@ApiTags('universiteler')
+@Controller('universiteler')
+export class UniversitelerTrController {
+  constructor(private universitiesService: UniversitiesService) {}
+
+  // Örnek: GET /api/v1/universiteler?search=muğla
+  @Get()
+  @ApiOperation({ summary: 'Üniversite ara (TR alias, autocomplete)' })
+  @ApiQuery({ name: 'search', required: false })
+  async searchTr(@Query('search') search?: string) {
+    const q = search || '';
+    const data = await this.universitiesService.searchUniversities(q, 15);
+    // Örnek şema ile hizalı alan adları
+    return data.map(u => ({ id: u.id, ad: u.name, sehir: u.city }));
+  }
+
+  // Örnek: GET /api/v1/universiteler/:id/fakulteler
+  @Get(':id/fakulteler')
+  @ApiOperation({ summary: 'Seçilen üniversitenin fakülteleri (TR alias)' })
+  @ApiQuery({ name: 'search', required: false })
+  async facultiesTr(@Param('id') id: string, @Query('search') search?: string) {
+    const data = await this.universitiesService.searchFaculties(id, search, 50);
+    return data.map(f => ({ id: f.id, ad: f.name }));
+  }
+}
+
+@ApiTags('fakulteler')
+@Controller('fakulteler')
+export class FakultelerTrController {
+  constructor(private universitiesService: UniversitiesService) {}
+
+  // Örnek: GET /api/v1/fakulteler/:id/bolumler
+  @Get(':id/bolumler')
+  @ApiOperation({ summary: 'Seçilen fakültenin bölümleri (TR alias)' })
+  @ApiQuery({ name: 'search', required: false })
+  async departmentsTr(@Param('id') id: string, @Query('search') search?: string) {
+    const data = await this.universitiesService.searchDepartments(undefined, id, search, 100);
+    return data.map(d => ({ id: d.id, ad: d.name }));
+  }
+}

@@ -149,7 +149,7 @@ export default function EarnSection() {
           className="text-center mt-12"
         >
           <button className="px-10 py-5 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-full font-bold text-lg hover:from-orange-600 hover:to-orange-700 transform hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl">
-            Hemen Not Yüklemeye Başla
+              Hemen Başla
           </button>
         </motion.div>
       </div>

@@ -20,6 +20,8 @@ dist/
 .env.local
 .env.production
 .env.development
+.env.production.local
+.env.staging
 
 # Logs
 logs

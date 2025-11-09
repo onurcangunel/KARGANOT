@@ -1,50 +1,14 @@
-"use client"
+import { cn } from '@/lib/utils';
 
-import * as React from "react"
-import * as AvatarPrimitive from "@radix-ui/react-avatar"
+export function Avatar({ src, alt, size = 32, children, className }: { src?: string | null; alt?: string; size?: number; children?: React.ReactNode; className?: string }) {
+  if (children) return <div className={cn('inline-block rounded-full overflow-hidden', className)} style={{ width: size, height: size }}>{children}</div>;
+  return <img src={src || '/image/logo.png'} alt={alt ?? ''} width={size} height={size} className={cn('inline-block rounded-full object-cover', className)} />;
+}
 
-import { cn } from "@/lib/utils"
+export function AvatarImage(props: React.ImgHTMLAttributes<HTMLImageElement>) {
+  return <img {...props} />;
+}
 
-const Avatar = React.forwardRef<
-  React.ElementRef<typeof AvatarPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root>
->(({ className, ...props }, ref) => (
-  <AvatarPrimitive.Root
-    ref={ref}
-    className={cn(
-      "relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full",
-      className
-    )}
-    {...props}
-  />
-))
-Avatar.displayName = AvatarPrimitive.Root.displayName
-
-const AvatarImage = React.forwardRef<
-  React.ElementRef<typeof AvatarPrimitive.Image>,
-  React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Image>
->(({ className, ...props }, ref) => (
-  <AvatarPrimitive.Image
-    ref={ref}
-    className={cn("aspect-square h-full w-full", className)}
-    {...props}
-  />
-))
-AvatarImage.displayName = AvatarPrimitive.Image.displayName
-
-const AvatarFallback = React.forwardRef<
-  React.ElementRef<typeof AvatarPrimitive.Fallback>,
-  React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Fallback>
->(({ className, ...props }, ref) => (
-  <AvatarPrimitive.Fallback
-    ref={ref}
-    className={cn(
-      "flex h-full w-full items-center justify-center rounded-full bg-muted",
-      className
-    )}
-    {...props}
-  />
-))
-AvatarFallback.displayName = AvatarPrimitive.Fallback.displayName
-
-export { Avatar, AvatarImage, AvatarFallback }
+export function AvatarFallback({ children, className }: { children?: React.ReactNode; className?: string }) {
+  return <div className={cn('grid place-items-center bg-gray-200 text-gray-600', className)}>{children}</div>;
+}

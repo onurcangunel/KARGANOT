@@ -22,12 +22,12 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation */}
-      <nav className="bg-white border-b border-gray-200 sticky top-0 z-40 backdrop-blur-sm bg-white/95">
+  <nav className="sticky top-0 z-40 backdrop-blur-xl bg-white/70 border-b border-black/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <Link href="/" className="flex items-center">
-              <img src="/image/logo.png" alt="KARGANOT" className="h-10 w-auto" />
+            <Link href="/" className="flex items-center gap-3 group">
+              <img src="/image/logo.png" alt="KARGANOT" className="h-12 w-auto drop-shadow-sm transition-transform duration-300 group-hover:scale-105" />
             </Link>
 
             {/* Desktop Navigation */}
@@ -52,14 +52,14 @@ export default function LandingPage() {
                 <>
                   <button
                     onClick={() => handleAuthClick('login')}
-                    className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-orange-600 font-medium transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 rounded-full btn-ghost-premium font-medium"
                   >
                     <LogIn className="w-4 h-4" />
                     <span className="hidden sm:inline">Giriş Yap</span>
                   </button>
                   <button
                     onClick={() => handleAuthClick('register')}
-                    className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg font-medium hover:from-orange-600 hover:to-orange-700 transform hover:scale-105 transition-all duration-200 shadow-md hover:shadow-lg"
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-full btn-premium font-medium active:scale-[0.98]"
                   >
                     <UserPlus className="w-4 h-4" />
                     <span>Üye Ol</span>

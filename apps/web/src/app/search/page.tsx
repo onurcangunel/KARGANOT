@@ -3,6 +3,8 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState } from 'react'
+import { useTrackEvent } from '@/hooks/useTrackEvent'
+import { EVENTS } from '@/lib/analytics/events'
 import { Search, Filter, Star, Download, Eye, Lock } from 'lucide-react'
 
 export default function SearchPage() {
@@ -12,6 +14,7 @@ export default function SearchPage() {
     university: 'all',
     course: 'all'
   })
+  const track = useTrackEvent()
 
   const mockResults = [
     {
@@ -72,6 +75,11 @@ export default function SearchPage() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    track(EVENTS.search, { query: searchQuery.trim() })
+                  }
+                }}
                 placeholder="Not, ders veya üniversite ara..."
                 className="w-full pl-12 pr-4 py-3 border-2 border-gray-300 rounded-full focus:border-[#0066FF] focus:outline-none"
               />

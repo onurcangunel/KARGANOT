@@ -1,5 +1,4 @@
 /**
-export const dynamic = 'force-dynamic';
  * YÖK ATLAS - Üniversite Listesi API
  * 
  * GET /api/yok-atlas/universities?search=muğla
@@ -10,12 +9,15 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
+// Bu endpoint istek parametrelerine bağlı çalışıyor, SSG yapılmamalı
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams
     const search = searchParams.get('search') || ''
 
-    const universities = await prisma.university.findMany({
+  const universities = await prisma.university.findMany({
       where: search
         ? {
             OR: [
@@ -30,12 +32,10 @@ export async function GET(request: NextRequest) {
         slug: true,
         city: true,
         type: true,
-        logo: true,
-        yokAtlasId: true,
         _count: {
           select: {
-            units: true,
-            documents: true,
+      faculties: true,
+      notes: true,
           },
         },
       },

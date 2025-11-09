@@ -7,17 +7,20 @@
  */
 
 import { useState } from 'react';
-import { signIn } from 'next-auth/react';
+import api from '@/utils/api';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema, type LoginInput } from '@/lib/validations/auth';
+import { useTrackEvent } from '@/hooks/useTrackEvent';
+import { EVENTS } from '@/lib/analytics/events';
 
 export default function LoginPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>('');
+  const track = useTrackEvent({ method: 'credentials' });
 
   const {
     register,
@@ -32,24 +35,33 @@ export default function LoginPage() {
       setIsLoading(true);
       setError('');
 
-      // NextAuth signIn
-      const result = await signIn('credentials', {
+      // JWT Login via API
+      const res = await api.post('/v1/auth/login', {
         email: data.email,
         password: data.password,
-        redirect: false,
       });
 
-      if (result?.error) {
-        setError('Email veya şifre hatalı. Lütfen tekrar deneyin.');
+      const payload = res.data?.data;
+      if (!payload?.accessToken) {
+        setError('Giriş başarısız.');
         return;
       }
+
+      // Persist session
+      localStorage.setItem('accessToken', payload.accessToken);
+      localStorage.setItem('refreshToken', payload.refreshToken);
+      localStorage.setItem('user', JSON.stringify(payload.user));
+
+  // Analytics
+  try { track(EVENTS.login, { method: 'credentials' }); } catch {}
 
       // Success - redirect to dashboard
       router.push('/dashboard');
       router.refresh();
-    } catch (err) {
+    } catch (err: any) {
       console.error('Login error:', err);
-      setError('Bir hata oluştu. Lütfen tekrar deneyin.');
+      const msg = err?.response?.data?.error?.message || 'Bir hata oluştu. Lütfen tekrar deneyin.';
+      setError(msg);
     } finally {
       setIsLoading(false);
     }

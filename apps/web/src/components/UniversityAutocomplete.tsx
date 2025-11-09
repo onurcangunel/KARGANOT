@@ -117,7 +117,7 @@ export function UniversityAutocomplete({
                   <CommandItem
                     key={university.universityId}
                     value={university.universityName}
-                    onSelect={(currentValue) => {
+                    onSelect={(currentValue: string) => {
                       onChange(currentValue === value ? '' : currentValue);
                       setOpen(false);
                       setSearchQuery('');

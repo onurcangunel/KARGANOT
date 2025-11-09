@@ -19,7 +19,7 @@ export default function YokAtlasTestPage() {
             YÖK Atlas Entegrasyonu
           </h1>
           <p className="text-lg text-slate-600">
-            208+ üniversite, 1000+ fakülte, 5000+ bölüm verisi
+            YÖK Atlas entegrasyonu ile güncel üniversite ve bölüm verileri (detaylı sayılar ödeme ve rapor ekranlarında açıklanır)
           </p>
         </div>
 
@@ -108,7 +108,7 @@ export default function YokAtlasTestPage() {
         {/* Info Cards */}
         <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-white rounded-lg p-4 shadow">
-            <div className="text-3xl font-bold text-blue-600 mb-1">208+</div>
+            <div className="text-3xl font-bold text-blue-600 mb-1">Canlı</div>
             <div className="text-sm text-slate-600">Üniversite</div>
           </div>
           <div className="bg-white rounded-lg p-4 shadow">

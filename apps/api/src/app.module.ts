@@ -9,13 +9,15 @@ import { NotesModule } from './modules/notes/notes.module';
 import { PurchasesModule } from './modules/purchases/purchases.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { HealthModule } from './modules/health/health.module';
+import { RootModule } from './modules/root/root.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
+  ConfigModule.forRoot({
       isGlobal: true,
     }),
-    ScheduleModule.forRoot(),
+  ScheduleModule.forRoot(),
     ThrottlerModule.forRoot([{
       ttl: 60000,
       limit: 100,
@@ -27,6 +29,8 @@ import { PrismaModule } from './prisma/prisma.module';
     NotesModule,
     PurchasesModule,
     PaymentsModule,
+  HealthModule,
+  RootModule,
   ],
 })
 export class AppModule {}

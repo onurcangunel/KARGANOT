@@ -1,8 +1,12 @@
+const withMDX = require('@next/mdx')({
+  extension: /\.mdx?$/,
+});
+
 /** @type {import('next').NextConfig} */
-const nextConfig = {
+const baseConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  output: 'standalone',
+  // output: 'standalone', // Disabled for local next start compatibility
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -10,12 +14,25 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    domains: ['localhost', 'karganot.com', 's3.amazonaws.com'],
+    remotePatterns: [
+      { protocol: 'http', hostname: 'localhost' },
+      { protocol: 'https', hostname: 'karganot.com' },
+      { protocol: 'https', hostname: 's3.amazonaws.com' },
+    ],
     formats: ['image/avif', 'image/webp'],
   },
   env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api',
+  NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:3000/api/v1',
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+  },
+  async redirects() {
+    return [
+      {
+        source: '/kullanim-sartlari',
+  destination: '/kullanim',
+  statusCode: 308,
+      },
+    ];
   },
   async headers() {
     return [
@@ -49,5 +66,10 @@ const nextConfig = {
     return config
   },
 };
+
+const nextConfig = withMDX({
+  ...baseConfig,
+  pageExtensions: ['ts', 'tsx', 'mdx'],
+});
 
 module.exports = nextConfig;

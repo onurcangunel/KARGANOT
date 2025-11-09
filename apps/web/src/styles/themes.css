@@ -1,0 +1,13 @@
+/* Base theming helpers */
+html { scroll-behavior: smooth; }
+::selection { background: #007aff; color: #fff; }
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+  }
+  body {
+    background: #0b0b0c;
+    color: #f5f5f5;
+  }
+}

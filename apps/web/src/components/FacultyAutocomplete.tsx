@@ -33,6 +33,7 @@ export function FacultyAutocomplete({
     if (value && universityName) {
       onChange('');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [universityName]);
 
   const filteredFaculties = faculties?.filter(f =>

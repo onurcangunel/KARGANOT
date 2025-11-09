@@ -1,0 +1,66 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_USER: karganot_prod
+      POSTGRES_PASSWORD: strongpassword
+      POSTGRES_DB: karganot_prod
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: ../../docker/Dockerfile.api
+    restart: always
+    env_file: .env.production
+    depends_on:
+      - db
+    ports:
+      - "3000:3000"
+
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    restart: always
+    env_file: .env.production
+    depends_on:
+      - api
+    ports:
+      - "3001:3001"
+
+  nginx:
+    image: nginx:latest
+    restart: always
+    volumes:
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+  - ./docker/certbot:/etc/letsencrypt
+  - ./docker/certbot-logs:/var/log/letsencrypt
+  - ./docker/www:/var/www/certbot
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - web
+      - api
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+  - ./docker/nginx:/etc/nginx/conf.d
+  - ./docker/certbot:/etc/letsencrypt
+  - ./docker/certbot-logs:/var/log/letsencrypt
+  - ./docker/www:/var/www/certbot
+    command: >-
+      certonly --webroot -w /var/www/certbot \
+  -d karganot.com -d www.karganot.com -d api.karganot.com \
+      --agree-tos --email admin@karganot.com --non-interactive
+
+volumes:
+  pgdata:
+  

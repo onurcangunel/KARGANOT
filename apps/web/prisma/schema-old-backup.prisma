@@ -1,0 +1,424 @@
+// KARGANOT MVP - Prisma Schema
+// Based on NOTSENİN MVP Technical Requirements
+// PostgreSQL + Full MVP Feature Set
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// USER & AUTHENTICATION
+// ==========================================
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  emailVerified DateTime?
+  passwordHash  String?   // nullable for OAuth users
+  name          String
+  image         String?
+  
+  // Academic Info
+  universityId  String?
+  university    University? @relation(fields: [universityId], references: [id])
+  departmentId  String?
+  department    Department? @relation(fields: [departmentId], references: [id])
+  
+  // Role & Status
+  role          Role      @default(USER)
+  status        UserStatus @default(ACTIVE)
+  
+  // Plan & Quota (MVP Core Feature)
+  plan          Plan      @default(FREE)
+  planRenewsAt  DateTime?
+  monthlyDownloadQuota Int @default(3)
+  monthlyDownloadUsed  Int @default(0)
+  
+  // Timestamps
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  lastLoginAt   DateTime?
+  
+  // Relations
+  accounts      Account[]
+  sessions      Session[]
+  notes         Note[]         @relation("NoteUploader")
+  downloads     Download[]
+  ratings       Rating[]
+  reports       Report[]
+  transactions  Transaction[]
+  auditLogs     AuditLog[]
+  
+  @@index([email])
+  @@index([universityId])
+  @@index([plan])
+  @@index([status])
+  @@map("users")
+}
+
+// NextAuth models
+model Account {
+  id                String  @id @default(uuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+  
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ==========================================
+// TAXONOMY (University Hierarchy)
+// ==========================================
+
+model University {
+  id         String    @id @default(uuid())
+  name       String    @unique
+  slug       String    @unique
+  city       String?
+  type       String?   // state | foundation
+  isActive   Boolean   @default(true)
+  
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  
+  // Relations
+  faculties  Faculty[]
+  users      User[]
+  notes      Note[]
+  
+  @@index([slug])
+  @@index([isActive])
+  @@map("universities")
+}
+
+model Faculty {
+  id           String     @id @default(uuid())
+  universityId String
+  university   University @relation(fields: [universityId], references: [id], onDelete: Cascade)
+  name         String
+  slug         String
+  isActive     Boolean    @default(true)
+  
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  
+  // Relations
+  departments  Department[]
+  
+  @@unique([universityId, slug])
+  @@index([universityId])
+  @@index([isActive])
+  @@map("faculties")
+}
+
+model Department {
+  id         String   @id @default(uuid())
+  facultyId  String
+  faculty    Faculty  @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+  name       String
+  slug       String
+  isActive   Boolean  @default(true)
+  
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+  // Relations
+  courses    Course[]
+  users      User[]
+  
+  @@unique([facultyId, slug])
+  @@index([facultyId])
+  @@index([isActive])
+  @@map("departments")
+}
+
+model Course {
+  id           String     @id @default(uuid())
+  departmentId String
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  name         String
+  code         String?
+  semester     Semester?  // fall | spring | all
+  isActive     Boolean    @default(true)
+  
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  
+  // Relations
+  notes        Note[]
+  
+  @@unique([departmentId, code])
+  @@index([departmentId])
+  @@index([isActive])
+  @@map("courses")
+}
+
+// ==========================================
+// NOTES (Document Management)
+// ==========================================
+
+model Note {
+  id              String     @id @default(uuid())
+  courseId        String
+  course          Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  uploaderId      String
+  uploader        User       @relation("NoteUploader", fields: [uploaderId], references: [id], onDelete: Cascade)
+  universityId    String
+  university      University @relation(fields: [universityId], references: [id])
+  
+  // Content
+  title           String
+  description     String?
+  tags            String[]   @default([])
+  
+  // File Info
+  fileKey         String     // S3 path
+  fileExt         String     // pdf | docx | pptx | jpg
+  pages           Int?
+  sizeBytes       BigInt
+  previewKey      String?    // First 3 pages preview
+  
+  // OCR & Search
+  ocrTextIndexed  Boolean    @default(false)
+  
+  // Engagement
+  downloads       Int        @default(0)
+  views           Int        @default(0)
+  avgRating       Float?
+  ratingCount     Int        @default(0)
+  
+  // Moderation
+  status          NoteStatus @default(PENDING)
+  moderationReason String?
+  
+  // Timestamps
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  
+  // Relations
+  ratings         Rating[]
+  reports         Report[]
+  downloadRecords Download[]
+  
+  @@index([courseId])
+  @@index([uploaderId])
+  @@index([universityId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("notes")
+}
+
+// ==========================================
+// ENGAGEMENT (Ratings, Reports, Downloads)
+// ==========================================
+
+model Rating {
+  id        String   @id @default(uuid())
+  noteId    String
+  note      Note     @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rating    Int      // 1-5
+  comment   String?
+  
+  createdAt DateTime @default(now())
+  
+  @@unique([noteId, userId])
+  @@index([noteId])
+  @@map("ratings")
+}
+
+model Report {
+  id         String       @id @default(uuid())
+  noteId     String
+  note       Note         @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  reporterId String
+  reporter   User         @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+  type       ReportType
+  detail     String
+  status     ReportStatus @default(OPEN)
+  
+  createdAt  DateTime     @default(now())
+  resolvedAt DateTime?
+  resolverId String?
+  
+  @@index([noteId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("reports")
+}
+
+model Download {
+  id        String   @id @default(uuid())
+  noteId    String
+  note      Note     @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ipHash    String   // Hashed IP for privacy
+  userAgent String?
+  
+  createdAt DateTime @default(now())
+  
+  @@index([noteId])
+  @@index([userId, createdAt])
+  @@map("downloads")
+}
+
+// ==========================================
+// PAYMENTS & TRANSACTIONS
+// ==========================================
+
+model Transaction {
+  id          String            @id @default(uuid())
+  userId      String
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider    PaymentProvider
+  type        TransactionType
+  amount      Decimal           @db.Decimal(10, 2)
+  currency    String            @default("TRY")
+  status      TransactionStatus
+  providerRef String?
+  
+  createdAt   DateTime          @default(now())
+  renewedAt   DateTime?
+  expiresAt   DateTime?
+  
+  @@index([userId, status])
+  @@index([createdAt])
+  @@map("transactions")
+}
+
+model Webhook {
+  id        String   @id @default(uuid())
+  provider  String
+  payload   Json
+  verified  Boolean  @default(false)
+  
+  createdAt DateTime @default(now())
+  
+  @@index([provider, createdAt])
+  @@map("webhooks")
+}
+
+// ==========================================
+// AUDIT & COMPLIANCE
+// ==========================================
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  actorUserId String?
+  actor       User?    @relation(fields: [actorUserId], references: [id])
+  action      String
+  entity      String   // table name
+  entityId    String
+  diff        Json?    // old → new changes
+  
+  createdAt   DateTime @default(now())
+  
+  @@index([actorUserId])
+  @@index([entity, entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// ==========================================
+// ENUMS
+// ==========================================
+
+enum Role {
+  USER
+  MODERATOR
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  BANNED
+  SUSPENDED
+}
+
+enum Plan {
+  FREE
+  PREMIUM
+}
+
+enum Semester {
+  FALL
+  SPRING
+  SUMMER
+  ALL
+}
+
+enum NoteStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  REMOVED
+}
+
+enum ReportType {
+  COPYRIGHT
+  SPAM
+  INAPPROPRIATE
+  OTHER
+}
+
+enum ReportStatus {
+  OPEN
+  IN_REVIEW
+  RESOLVED
+  REJECTED
+}
+
+enum PaymentProvider {
+  IYZICO
+  PAYTR
+  STRIPE
+}
+
+enum TransactionType {
+  SUBSCRIPTION
+  ONE_TIME
+}
+
+enum TransactionStatus {
+  INIT
+  SUCCESS
+  FAILED
+  REFUND
+}

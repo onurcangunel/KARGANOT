@@ -7,7 +7,7 @@
  */
 
 import { useState } from 'react';
-import { signIn } from 'next-auth/react';
+import api from '@/utils/api';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
@@ -34,42 +34,28 @@ export default function RegisterPage() {
       setError('');
 
       // Register API call
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: data.name,
-          email: data.email,
-          password: data.password,
-          university: data.university,
-          faculty: data.faculty,
-          department: data.department,
-        }),
+      const response = await api.post('/v1/auth/register', {
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        universityId: data.university,
+        departmentId: data.department,
       });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Kayıt başarısız');
-      }
 
       // Success!
       setSuccess(true);
 
       // Auto-login after successful registration
-      const loginResult = await signIn('credentials', {
+      // Auto-login via API
+      const loginRes = await api.post('/v1/auth/login', {
         email: data.email,
         password: data.password,
-        redirect: false,
       });
-
-      if (loginResult?.error) {
-        // Registration successful but login failed
-        // Redirect to login page
-        setTimeout(() => {
-          router.push('/login');
-        }, 2000);
-        return;
+      const payload = loginRes.data?.data;
+      if (payload?.accessToken) {
+        localStorage.setItem('accessToken', payload.accessToken);
+        localStorage.setItem('refreshToken', payload.refreshToken);
+        localStorage.setItem('user', JSON.stringify(payload.user));
       }
 
       // Both registration and login successful

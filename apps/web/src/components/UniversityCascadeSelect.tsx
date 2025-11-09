@@ -78,6 +78,7 @@ export default function UniversityCascadeSelect({ onSelectionChange, initialValu
     } else {
       setFaculties([]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedUniversity, universities]);
 
   useEffect(() => {
@@ -91,6 +92,7 @@ export default function UniversityCascadeSelect({ onSelectionChange, initialValu
     } else {
       setDepartments([]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedFaculty, faculties]);
 
   useEffect(() => {
@@ -107,6 +109,7 @@ export default function UniversityCascadeSelect({ onSelectionChange, initialValu
     } else {
       setClasses([]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDepartment, departments]);
 
   useEffect(() => {
@@ -123,6 +126,7 @@ export default function UniversityCascadeSelect({ onSelectionChange, initialValu
     } else {
       setCourses([]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedClass, departments]);
 
   useEffect(() => {
@@ -135,6 +139,7 @@ export default function UniversityCascadeSelect({ onSelectionChange, initialValu
         course: selectedCourse,
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCourse]);
 
   const SelectBox = ({ 
