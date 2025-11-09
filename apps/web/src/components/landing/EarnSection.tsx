@@ -5,12 +5,11 @@ import { TrendingUp, Coins, Upload, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function EarnSection() {
+  // Pazarlama rakamlarını sadeleştirilmiş, örnekleyici tablo
   const earningsTable = [
     { notes: 10, price: 10, commission: 30, earning: 70 },
     { notes: 25, price: 10, commission: 30, earning: 175 },
-    { notes: 50, price: 15, commission: 30, earning: 525 },
-    { notes: 100, price: 15, commission: 30, earning: 1050 },
-    { notes: 200, price: 20, commission: 30, earning: 2800 }
+    { notes: 50, price: 15, commission: 30, earning: 525 }
   ];
 
   const steps = [
@@ -148,8 +147,8 @@ export default function EarnSection() {
           transition={{ delay: 0.6 }}
           className="text-center mt-12"
         >
-          <button className="px-10 py-5 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-full font-bold text-lg hover:from-orange-600 hover:to-orange-700 transform hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl">
-              Hemen Başla
+          <button className="btn-premium rounded-full px-10 py-5 text-lg shadow-xl hover:shadow-2xl">
+            Hemen Başla
           </button>
         </motion.div>
       </div>
