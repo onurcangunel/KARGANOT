@@ -2,7 +2,51 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('../styles/animations.css');
+@import url('../styles/themes.css');
+
 @layer utilities {
+  /* Premium glass and button utilities */
+  .glass {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(16px) saturate(120%);
+    -webkit-backdrop-filter: blur(16px) saturate(120%);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+  }
+  .dark .glass {
+    background: rgba(15, 15, 15, 0.5);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+  .btn-premium {
+    padding: 10px 16px;
+    border-radius: 9999px;
+    background: linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%);
+    color: #0f0f0f;
+    font-weight: 600;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  }
+  .btn-premium:hover { filter: brightness(0.98); transform: translateY(-1px); }
+  .dark .btn-premium {
+    background: linear-gradient(135deg, #f5f5f5 0%, #e7e7e7 100%);
+    color: #111;
+  }
+  .btn-ghost-premium {
+    padding: 10px 16px;
+    border-radius: 9999px;
+    border: 1px solid rgba(255,255,255,0.14);
+    color: inherit;
+    background: rgba(255,255,255,0.04);
+  }
+  .dark .btn-ghost-premium { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.12); }
+  .gradient-text-lux {
+    background: linear-gradient(90deg, #ffffff 0%, rgba(255,255,255,0.75) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .subtle-border { border: 1px solid rgba(0,0,0,0.06); }
+  .dark .subtle-border { border-color: rgba(255,255,255,0.08); }
+
   @keyframes bounce-slow {
     0%, 100% {
       transform: translateY(0);
@@ -56,6 +100,11 @@
 
   .animate-shimmer {
     animation: shimmer 2s infinite;
+  }
+
+  /* subtle shimmer line for secondary CTA */
+  .shimmer-line {
+    will-change: transform;
   }
 
   .animate-fadeIn {
@@ -203,6 +252,25 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Global smoothness and theme transitions */
+html {
+  scroll-behavior: smooth;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+html.dark {
+  background: #0f0f0f;
+  color: #eaeaea;
+}
+body { background: #ffffff; }
+.dark body { background: #0f0f0f; color: #eaeaea; }
+
+/* Subtle background pattern for the whole app */
+.bg-grid-pattern {
+  background-image: linear-gradient(to right, rgba(0,0,0,0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0,0,0,0.04) 1px, transparent 1px);
+  background-size: 22px 22px;
 }
 
 /* ==================== MODERN DASHBOARD STYLES ==================== */
